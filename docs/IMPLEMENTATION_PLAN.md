@@ -308,9 +308,9 @@ Each phase ends with polish (responsive check, visual QA) and a deploy to GitHub
 - [x] 29. **Polish & deploy**: verify charts match collection_analysis.md, responsive charts, deploy
 
 ### Phase 7 — Detail Pages
-- [ ] 30. CdDetailPage + iTunes art + Spotify/YouTube buttons
-- [ ] 31. DvdDetailPage + IMDb/Google buttons
-- [ ] 32. **Polish & deploy**: verify all links, responsive layout, deploy
+- [x] 30. CdDetailPage + iTunes art + Spotify/YouTube buttons
+- [x] 31. DvdDetailPage + IMDb/Google buttons
+- [x] 32. **Polish & deploy**: verify all links, responsive layout, deploy
 
 ### Phase 8 — Final Polish
 - [ ] 33. Full responsive pass (375px, 768px, 1024px, 1440px)
