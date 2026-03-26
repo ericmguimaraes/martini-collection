@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  /* Background */
+  --color-background: #121212;
+  --color-background-alt: #0f0f0f;
+
+  /* Surface / cards */
+  --color-surface: #1e1c1a;
+  --color-surface-light: #2a2523;
+  --color-surface-hover: #332e2a;
+
+  /* Primary accent — warm amber/gold */
+  --color-amber: #d4a053;
+  --color-amber-light: #e0b56a;
+  --color-amber-dark: #c4923a;
+
+  /* Secondary accent — muted copper */
+  --color-copper: #b8734a;
+  --color-copper-light: #c9885f;
+
+  /* Text */
+  --color-foreground: #f0e6d6;
+  --color-muted: #a09080;
+  --color-muted-dark: #6b5e50;
+
+  /* Fonts */
+  --font-display: "DM Serif Display", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* Base styles */
+html {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+/* Grain texture overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-light);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-dark);
+}
+
+/* Selection */
+::selection {
+  background-color: color-mix(in srgb, var(--color-amber) 30%, transparent);
+  color: var(--color-foreground);
+}

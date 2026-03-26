@@ -267,11 +267,11 @@ martini-collection/
 Each phase ends with polish (responsive check, visual QA) and a deploy to GitHub Pages so the site is always live and incremental. Update the checkboxes below after completing each step.
 
 ### Phase 1 — Scaffolding + Deploy Pipeline
-- [ ] 1. `package.json` with all deps, configs (tsconfig, vite, tailwind, postcss)
-- [ ] 2. `index.html`, `src/main.tsx`, `src/App.tsx`, `src/index.css` with dark theme
-- [ ] 3. `.gitignore` (node_modules, dist, src/data/*.json)
-- [ ] 4. `.github/workflows/deploy.yml` — set up GitHub Actions deploy early
-- [ ] 5. **Polish & deploy**: verify dev + build, push, confirm Pages works with placeholder
+- [x] 1. `package.json` with all deps, configs (tsconfig, vite, tailwind, postcss)
+- [x] 2. `index.html`, `src/main.tsx`, `src/App.tsx`, `src/index.css` with dark theme
+- [x] 3. `.gitignore` (node_modules, dist, src/data/*.json)
+- [x] 4. `.github/workflows/deploy.yml` — set up GitHub Actions deploy early
+- [x] 5. **Polish & deploy**: verify dev + build, push, confirm Pages works with placeholder
 
 ### Phase 2 — Data Pipeline
 - [ ] 6. TypeScript interfaces (`src/types/`)
