@@ -4,7 +4,7 @@ import type { CdItem } from '@/types/cd'
 import type { DvdItem } from '@/types/dvd'
 import { pickFeaturedCds, pickFeaturedDvds } from '@/lib/featured'
 import { getTagColor, getGenreColor } from '@/lib/colors'
-import { useItunesArt } from '@/hooks/useItunesArt'
+import { useCdArtwork, useDvdPoster } from '@/hooks/useArtwork'
 import { useLanguage } from '@/i18n'
 
 interface FeaturedPicksProps {
@@ -13,7 +13,7 @@ interface FeaturedPicksProps {
 }
 
 function CdPickCard({ cd, index }: { cd: CdItem; index: number }) {
-  const artUrl = useItunesArt(cd.artist, cd.title)
+  const artUrl = useCdArtwork(cd)
 
   return (
     <Link
@@ -60,23 +60,36 @@ function CdPickCard({ cd, index }: { cd: CdItem; index: number }) {
 }
 
 function DvdPickCard({ dvd, index }: { dvd: DvdItem; index: number }) {
+  const posterUrl = useDvdPoster(dvd)
+
   return (
     <Link
       to={`/dvd/${dvd.id}`}
       className="group flex flex-col rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5 animate-fade-in-up"
       style={{ animationDelay: `${index * 60}ms` }}
     >
-      <div className="aspect-square bg-surface-hover flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-copper/10 to-amber/5" />
-        <div className="relative text-center space-y-2">
-          {dvd.imdbRating && (
-            <div className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-amber/40 bg-amber/10">
-              <span className="font-mono text-sm text-amber font-bold">{dvd.imdbRating}</span>
+      <div className="aspect-square bg-surface-hover flex flex-col items-center justify-center relative overflow-hidden">
+        {posterUrl ? (
+          <img
+            src={posterUrl}
+            alt={dvd.title}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          />
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-copper/10 to-amber/5" />
+            <div className="relative text-center space-y-2 p-4">
+              {dvd.imdbRating && (
+                <div className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-amber/40 bg-amber/10">
+                  <span className="font-mono text-sm text-amber font-bold">{dvd.imdbRating}</span>
+                </div>
+              )}
+              <p className="font-display text-lg text-foreground leading-tight line-clamp-2">{dvd.title}</p>
+              {dvd.releaseYear && <p className="font-mono text-xs text-muted-dark">{dvd.releaseYear}</p>}
             </div>
-          )}
-          <p className="font-display text-lg text-foreground leading-tight line-clamp-2">{dvd.title}</p>
-          {dvd.releaseYear && <p className="font-mono text-xs text-muted-dark">{dvd.releaseYear}</p>}
-        </div>
+          </>
+        )}
       </div>
       <div className="p-3 space-y-1.5">
         <p className="text-sm text-foreground font-medium truncate group-hover:text-amber transition-colors">

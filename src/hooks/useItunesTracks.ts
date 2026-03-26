@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getItunesCollectionId } from './useItunesArt'
+import { getItunesCollectionId } from './useArtwork'
 
 export interface ItunesTrack {
   name: string

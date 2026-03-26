@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import type { CdItem } from '@/types/cd'
-import { useItunesArt } from '@/hooks/useItunesArt'
+import { useCdArtwork } from '@/hooks/useArtwork'
 
 interface CoverArtMarqueeProps {
   cds: CdItem[]
@@ -27,7 +27,7 @@ function hashCode(str: string): number {
 }
 
 function CoverTile({ cd }: { cd: CdItem }) {
-  const artUrl = useItunesArt(cd.artist, cd.title)
+  const artUrl = useCdArtwork(cd)
 
   if (!artUrl) {
     return null

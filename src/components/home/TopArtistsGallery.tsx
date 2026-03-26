@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import type { CdItem } from '@/types/cd'
 import type { CollectionStats } from '@/types/stats'
-import { useItunesArt } from '@/hooks/useItunesArt'
+import { useCdArtwork } from '@/hooks/useArtwork'
 import { useLanguage } from '@/i18n'
 
 interface TopArtistsGalleryProps {
@@ -20,7 +20,7 @@ const EXCLUDED_ARTISTS = new Set(['Various Artists', 'Various'])
 
 function ArtistCard({ artist }: { artist: ArtistInfo }) {
   const { t } = useLanguage()
-  const artUrl = useItunesArt(artist.sampleCd.artist, artist.sampleCd.title)
+  const artUrl = useCdArtwork(artist.sampleCd)
 
   return (
     <Link

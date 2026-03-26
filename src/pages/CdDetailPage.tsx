@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
 import type { CdItem } from '@/types/cd'
-import { useItunesArt } from '@/hooks/useItunesArt'
+import { useCdArtwork } from '@/hooks/useArtwork'
 import { useItunesTracks, type ItunesTrack } from '@/hooks/useItunesTracks'
 import { getTagColor, getGenreColor } from '@/lib/colors'
 import { spotifySearchUrl, youtubeSearchUrl } from '@/lib/links'
@@ -67,7 +67,7 @@ function Tracklist({ tracks }: { tracks: ItunesTrack[] }) {
 
 function CdDetail({ cd }: { cd: CdItem }) {
   const { t } = useLanguage()
-  const artUrl = useItunesArt(cd.artist, cd.title)
+  const artUrl = useCdArtwork(cd)
   const { tracks, loading: tracksLoading } = useItunesTracks(cd.artist, cd.title)
 
   return (

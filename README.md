@@ -27,19 +27,38 @@ A mobile-first React SPA with a dark theme inspired by vinyl record stores — w
 - **Vite 6 + React 18 + TypeScript** — SPA with lazy-loaded routes and vendor chunk splitting
 - **Tailwind CSS v4** — dark theme with warm amber/copper palette via `@theme` custom properties
 - **Nivo** — animated, responsive charts for the insights page
-- **iTunes Search API** — free CD cover art fetched at runtime with in-memory caching
+- **Multi-source cover art** — CD artwork from iTunes + MusicBrainz/Cover Art Archive; DVD posters from TMDB. Resolved at build time with runtime fallback
 - **GitHub Pages** — deployed automatically via GitHub Actions on push to `main`
 
 ### Development
 
 ```bash
-npm install          # install dependencies
-npm run prepare-data # generate JSON from CSV data
-npm run dev          # start dev server
-npm run build        # production build (runs prepare-data automatically)
+npm install            # install dependencies
+npm run prepare-data   # generate JSON from CSV data
+npm run resolve-artwork # resolve cover art & poster URLs (see below)
+npm run dev            # start dev server
+npm run build          # production build (runs prepare-data + resolve-artwork automatically)
 ```
 
 CSV data is processed at build time by `scripts/prepare-data.ts` into JSON files (`src/data/`). The React app imports these as static data with code-split chunks.
+
+### Cover Art & Poster Setup
+
+The `resolve-artwork` script fetches artwork URLs from external APIs at build time and caches them in `artwork-cache.json`. CD artwork works without any configuration (iTunes and MusicBrainz are free/keyless). DVD posters require a free TMDB API key.
+
+**Local setup** — create a `.env.local` file in the project root (already gitignored):
+
+```
+TMDB_API_KEY=your_tmdb_api_key_here
+```
+
+Get a free TMDB API key at [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api).
+
+**CI/CD** — the GitHub Actions workflow reads `TMDB_API_KEY` from repository secrets. Add it via Settings > Secrets and variables > Actions.
+
+**Without a TMDB key**, the build still works — DVD posters are skipped and DVDs show styled gradient placeholders instead. CD artwork is unaffected.
+
+The `artwork-cache.json` file is committed to git so that subsequent builds (local and CI) skip already-resolved items. The first run takes ~20 minutes for CDs; after that it's near-instant.
 
 ### Search
 
