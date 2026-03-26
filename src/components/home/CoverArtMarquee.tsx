@@ -7,21 +7,10 @@ interface CoverArtMarqueeProps {
   cds: CdItem[]
 }
 
-const NOTABLE_LABELS = new Set([
-  'Blue Note', 'Verve', 'Columbia', 'Prestige', 'Impulse!', 'ECM',
-  'Atlantic', 'Riverside', 'Fantasy', 'CTI', 'Pacific Jazz',
-  'Concord', 'Pablo', 'Savoy', 'Contemporary',
-])
-
 function pickMarqueeCds(cds: CdItem[], count: number): CdItem[] {
-  // Pick CDs likely to have good cover art
-  const candidates = cds.filter(cd => {
-    const coreTag = cd.tag === 'Jazz' || cd.tag === 'Música Brasileira' || cd.tag === 'Rock'
-    const goodLabel = NOTABLE_LABELS.has(cd.label)
-    return coreTag || goodLabel
-  })
-  // Deterministic shuffle based on array length (stable across renders)
-  const sorted = [...candidates].sort((a, b) => {
+  // Deterministic shuffle — all CDs are candidates since tiles without
+  // iTunes art render as null, so only real covers will be visible
+  const sorted = [...cds].sort((a, b) => {
     const ha = hashCode(a.id)
     const hb = hashCode(b.id)
     return ha - hb
@@ -41,14 +30,7 @@ function CoverTile({ cd }: { cd: CdItem }) {
   const artUrl = useCdArtwork(cd)
 
   if (!artUrl) {
-    return (
-      <div className="flex-none w-20 h-20 sm:w-24 sm:h-24 rounded-lg bg-surface-hover border border-surface-light flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber/5 to-copper/5" />
-        <p className="text-[8px] text-muted-dark text-center px-1 leading-tight line-clamp-2 relative">
-          {cd.title}
-        </p>
-      </div>
-    )
+    return null
   }
 
   return (
@@ -85,12 +67,12 @@ function MarqueeRow({ cds, direction }: { cds: CdItem[]; direction: 'left' | 'ri
 }
 
 export default function CoverArtMarquee({ cds }: CoverArtMarqueeProps) {
-  const row1 = useMemo(() => pickMarqueeCds(cds, 16), [cds])
+  const row1 = useMemo(() => pickMarqueeCds(cds, 60), [cds])
   const row2 = useMemo(() => {
     // Pick a different set for row 2
     const row1Ids = new Set(row1.map(c => c.id))
     const remaining = cds.filter(c => !row1Ids.has(c.id))
-    return pickMarqueeCds(remaining, 16)
+    return pickMarqueeCds(remaining, 40)
   }, [cds, row1])
 
   return (

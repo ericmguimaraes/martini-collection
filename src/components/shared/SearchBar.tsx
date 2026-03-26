@@ -45,7 +45,7 @@ export default function SearchBar({
       onSearch(q)
     } else if (!controlled) {
       if (!q) return
-      navigate(`/browse/cds?q=${encodeURIComponent(q)}`)
+      navigate(`/search?q=${encodeURIComponent(q)}`)
     }
   }
 
