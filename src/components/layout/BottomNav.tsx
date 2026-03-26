@@ -44,6 +44,16 @@ function ChartIcon({ className }: { className?: string }) {
   )
 }
 
+function VinylIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  )
+}
+
 function GlobeIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -62,6 +72,7 @@ export default function BottomNav() {
     { to: '/browse/cds', label: t('nav.cds'), icon: DiscIcon },
     { to: '/browse/dvds', label: t('nav.dvds'), icon: FilmIcon },
     { to: '/insights', label: t('nav.insights'), icon: ChartIcon },
+    { to: '/vinyl', label: t('nav.vinyl'), icon: VinylIcon, badge: t('nav.soon') },
   ]
 
   return (
@@ -73,18 +84,23 @@ export default function BottomNav() {
             to={tab.to}
             end={tab.to === '/'}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 px-3 py-2 min-w-[64px] transition-colors ${
+              `relative flex flex-col items-center gap-0.5 px-3 py-2 min-w-[52px] transition-colors ${
                 isActive ? 'text-amber' : 'text-muted'
               }`
             }
           >
             <tab.icon className="h-5 w-5" />
             <span className="text-[10px] font-medium">{tab.label}</span>
+            {'badge' in tab && tab.badge && (
+              <span className="absolute -top-0.5 right-0.5 rounded-full bg-amber/20 px-1 py-px text-[7px] font-mono text-amber leading-tight">
+                {tab.badge}
+              </span>
+            )}
           </NavLink>
         ))}
         <button
           onClick={() => setLanguage(language === 'en' ? 'pt' : 'en')}
-          className="flex flex-col items-center gap-0.5 px-3 py-2 min-w-[64px] text-muted transition-colors"
+          className="flex flex-col items-center gap-0.5 px-3 py-2 min-w-[52px] text-muted transition-colors"
           aria-label={language === 'en' ? 'Mudar para Português' : 'Switch to English'}
         >
           <GlobeIcon className="h-5 w-5" />
