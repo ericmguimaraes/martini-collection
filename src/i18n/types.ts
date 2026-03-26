@@ -169,6 +169,18 @@ export interface Translations {
     description: string
     stayTuned: string
   }
+  search: {
+    title: string
+    placeholder: string
+    promptMessage: string
+    emptyTitle: string
+    emptyHint: string
+    emptyAlt: string
+    foundSummary: string
+    result: string
+    results: string
+    viewAll: string
+  }
   common: {
     clearSearch: string
     more: string

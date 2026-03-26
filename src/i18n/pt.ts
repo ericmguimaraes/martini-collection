@@ -169,6 +169,18 @@ export const pt: Translations = {
     description: 'Esta seção está sendo curada. Uma coleção de discos de vinil será adicionada em breve.',
     stayTuned: 'Fique ligado.',
   },
+  search: {
+    title: 'Busca',
+    placeholder: 'Buscar artistas, álbuns, diretores, gêneros...',
+    promptMessage: 'Busque em todas as coleções — CDs, DVDs e mais',
+    emptyTitle: 'Até a Panqueca procurou e não encontrou!',
+    emptyHint: 'Tente um termo de busca diferente',
+    emptyAlt: 'Panqueca, a cachorra, procurando',
+    foundSummary: 'Encontrados {{cdCount}} CDs e {{dvdCount}} DVDs para "{{query}}"',
+    result: 'resultado',
+    results: 'resultados',
+    viewAll: 'Ver todos ({{count}})',
+  },
   common: {
     clearSearch: 'Limpar busca',
     more: '+{{count}} mais',
