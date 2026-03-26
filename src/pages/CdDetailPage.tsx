@@ -4,6 +4,7 @@ import { useCdArtwork } from '@/hooks/useArtwork'
 import { useItunesTracks, type ItunesTrack } from '@/hooks/useItunesTracks'
 import { getTagColor, getGenreColor } from '@/lib/colors'
 import { spotifySearchUrl, youtubeSearchUrl } from '@/lib/links'
+import { useLanguage } from '@/i18n'
 import Badge from '@/components/shared/Badge'
 import cds from '@/data/cds.json'
 
@@ -26,6 +27,7 @@ function formatTrackDuration(ms: number): string {
 }
 
 function Tracklist({ tracks }: { tracks: ItunesTrack[] }) {
+  const { t } = useLanguage()
   const maxDisc = Math.max(...tracks.map(t => t.discNumber))
   const multiDisc = maxDisc > 1
 
@@ -38,11 +40,11 @@ function Tracklist({ tracks }: { tracks: ItunesTrack[] }) {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-sm text-muted-dark uppercase tracking-wider font-medium">Tracklist</h2>
+      <h2 className="text-sm text-muted-dark uppercase tracking-wider font-medium">{t('cd.tracklist')}</h2>
       {Array.from(byDisc.entries()).map(([disc, discTracks]) => (
         <div key={disc}>
           {multiDisc && (
-            <p className="text-xs text-muted font-medium mb-2">Disc {disc}</p>
+            <p className="text-xs text-muted font-medium mb-2">{t('cd.disc', { number: disc })}</p>
           )}
           <ol className="space-y-0.5">
             {discTracks.map(t => (
@@ -64,6 +66,7 @@ function Tracklist({ tracks }: { tracks: ItunesTrack[] }) {
 }
 
 function CdDetail({ cd }: { cd: CdItem }) {
+  const { t } = useLanguage()
   const artUrl = useCdArtwork(cd)
   const { tracks, loading: tracksLoading } = useItunesTracks(cd.artist, cd.title)
 
@@ -78,7 +81,7 @@ function CdDetail({ cd }: { cd: CdItem }) {
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
-          Back to CDs
+          {t('cd.backToCds')}
         </Link>
 
         <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
@@ -120,21 +123,21 @@ function CdDetail({ cd }: { cd: CdItem }) {
 
             {/* Metadata grid */}
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-              {cd.label && <MetaItem label="Label" value={cd.label} />}
-              {cd.releaseYear && <MetaItem label="Year" value={String(cd.releaseYear)} mono />}
-              {cd.discs > 0 && <MetaItem label="Discs" value={String(cd.discs)} mono />}
-              {cd.tracks > 0 && <MetaItem label="Tracks" value={String(cd.tracks)} mono />}
-              {cd.length && <MetaItem label="Length" value={cd.length} mono />}
-              {cd.catNo && <MetaItem label="Catalog #" value={cd.catNo} mono />}
-              {cd.composer && <MetaItem label="Composer" value={cd.composer} />}
-              {cd.conductor && <MetaItem label="Conductor" value={cd.conductor} />}
+              {cd.label && <MetaItem label={t('cd.label')} value={cd.label} />}
+              {cd.releaseYear && <MetaItem label={t('cd.year')} value={String(cd.releaseYear)} mono />}
+              {cd.discs > 0 && <MetaItem label={t('cd.discs')} value={String(cd.discs)} mono />}
+              {cd.tracks > 0 && <MetaItem label={t('cd.tracks')} value={String(cd.tracks)} mono />}
+              {cd.length && <MetaItem label={t('cd.length')} value={cd.length} mono />}
+              {cd.catNo && <MetaItem label={t('cd.catalogNo')} value={cd.catNo} mono />}
+              {cd.composer && <MetaItem label={t('cd.composer')} value={cd.composer} />}
+              {cd.conductor && <MetaItem label={t('cd.conductor')} value={cd.conductor} />}
             </dl>
 
             {/* Tracklist */}
             {tracksLoading ? (
               <div className="flex items-center gap-2 text-sm text-muted py-2">
                 <div className="h-4 w-4 animate-spin rounded-full border border-amber/40 border-t-amber" />
-                Loading tracklist...
+                {t('cd.loadingTracklist')}
               </div>
             ) : tracks.length > 0 ? (
               <Tracklist tracks={tracks} />

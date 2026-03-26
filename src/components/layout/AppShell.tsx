@@ -1,8 +1,11 @@
 import { Outlet } from 'react-router-dom'
+import { useLanguage } from '@/i18n'
 import Navbar from './Navbar'
 import BottomNav from './BottomNav'
 
 export default function AppShell() {
+  const { t } = useLanguage()
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -11,7 +14,7 @@ export default function AppShell() {
       </main>
       <footer className="hidden md:block border-t border-surface-light py-6 text-center">
         <p className="font-mono text-xs text-muted-dark">
-          The Martini Collection — A curated collection of music and cinema
+          {t('nav.siteTitle')} — {t('footer.tagline')}
         </p>
       </footer>
       <BottomNav />

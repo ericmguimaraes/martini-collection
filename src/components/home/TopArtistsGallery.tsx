@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import type { CdItem } from '@/types/cd'
 import type { CollectionStats } from '@/types/stats'
 import { useCdArtwork } from '@/hooks/useArtwork'
+import { useLanguage } from '@/i18n'
 
 interface TopArtistsGalleryProps {
   stats: CollectionStats
@@ -18,6 +19,7 @@ interface ArtistInfo {
 const EXCLUDED_ARTISTS = new Set(['Various Artists', 'Various'])
 
 function ArtistCard({ artist }: { artist: ArtistInfo }) {
+  const { t } = useLanguage()
   const artUrl = useCdArtwork(artist.sampleCd)
 
   return (
@@ -48,7 +50,7 @@ function ArtistCard({ artist }: { artist: ArtistInfo }) {
             {artist.name}
           </p>
           <p className="font-mono text-xs text-amber/80">
-            {artist.count} {artist.count === 1 ? 'album' : 'albums'}
+            {artist.count} {artist.count === 1 ? t('home.album') : t('home.albums')}
           </p>
         </div>
       </div>
@@ -57,6 +59,8 @@ function ArtistCard({ artist }: { artist: ArtistInfo }) {
 }
 
 export default function TopArtistsGallery({ stats, cds }: TopArtistsGalleryProps) {
+  const { t } = useLanguage()
+
   const artists = useMemo(() => {
     const filtered = stats.cd.topArtists.filter(a => !EXCLUDED_ARTISTS.has(a.name))
     const top5 = filtered.slice(0, 5)
@@ -69,7 +73,7 @@ export default function TopArtistsGallery({ stats, cds }: TopArtistsGalleryProps
   return (
     <section className="px-4">
       <div className="mx-auto max-w-4xl space-y-4">
-        <h2 className="font-display text-2xl text-foreground">Most Collected Artists</h2>
+        <h2 className="font-display text-2xl text-foreground">{t('home.mostCollectedArtists')}</h2>
 
         <div className="flex sm:grid sm:grid-cols-5 gap-3 overflow-x-auto pb-2 scrollbar-none">
           {artists.map(artist => (

@@ -5,6 +5,7 @@ import type { DvdItem } from '@/types/dvd'
 import { pickFeaturedCds, pickFeaturedDvds } from '@/lib/featured'
 import { getTagColor, getGenreColor } from '@/lib/colors'
 import { useCdArtwork, useDvdPoster } from '@/hooks/useArtwork'
+import { useLanguage } from '@/i18n'
 
 interface FeaturedPicksProps {
   cds: CdItem[]
@@ -120,6 +121,7 @@ function ShuffleIcon() {
 }
 
 export default function FeaturedPicks({ cds, dvds }: FeaturedPicksProps) {
+  const { t } = useLanguage()
   const [seed, setSeed] = useState(0)
   const featuredCds = useMemo(() => pickFeaturedCds(cds, 4), [cds, seed])
   const featuredDvds = useMemo(() => pickFeaturedDvds(dvds, 4), [dvds, seed])
@@ -128,14 +130,14 @@ export default function FeaturedPicks({ cds, dvds }: FeaturedPicksProps) {
     <section className="px-4">
       <div className="mx-auto max-w-4xl space-y-4">
         <div className="flex items-center gap-3">
-          <h2 className="font-display text-2xl text-foreground">From the Collection</h2>
+          <h2 className="font-display text-2xl text-foreground">{t('home.fromTheCollection')}</h2>
           <button
             onClick={() => setSeed(s => s + 1)}
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-muted border border-surface-light bg-surface hover:border-amber/30 hover:text-amber transition-all"
-            title="Shuffle picks"
+            title={t('home.shufflePicks')}
           >
             <ShuffleIcon />
-            <span className="hidden sm:inline">Shuffle</span>
+            <span className="hidden sm:inline">{t('home.shuffle')}</span>
           </button>
         </div>
 

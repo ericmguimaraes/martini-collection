@@ -2,12 +2,15 @@ import { Link } from 'react-router-dom'
 import { ResponsivePie } from '@nivo/pie'
 import { nivoTheme, chartColors } from '@/components/stats/ChartTheme'
 import type { CollectionStats } from '@/types/stats'
+import { useLanguage } from '@/i18n'
 
 interface GenreBreakdownProps {
   stats: CollectionStats
 }
 
 export default function GenreBreakdown({ stats }: GenreBreakdownProps) {
+  const { t } = useLanguage()
+
   const pieData = stats.cd.tagDistribution.slice(0, 8).map((t, i) => ({
     id: t.tag,
     label: t.tag,
@@ -19,12 +22,12 @@ export default function GenreBreakdown({ stats }: GenreBreakdownProps) {
     <section className="px-4">
       <div className="mx-auto max-w-4xl space-y-4">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-display text-2xl text-foreground">Music by Genre</h2>
+          <h2 className="font-display text-2xl text-foreground">{t('home.musicByGenre')}</h2>
           <Link
             to="/insights"
             className="text-xs text-muted hover:text-amber transition-colors font-mono"
           >
-            Full breakdown &rarr;
+            {t('home.fullBreakdown')}
           </Link>
         </div>
 
