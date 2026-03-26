@@ -69,3 +69,8 @@ body::before {
   background-color: color-mix(in srgb, var(--color-amber) 30%, transparent);
   color: var(--color-foreground);
 }
+
+/* Safe area for bottom nav on notched devices */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
