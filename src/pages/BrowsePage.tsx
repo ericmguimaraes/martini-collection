@@ -79,14 +79,14 @@ function CdBrowse() {
       </div>
 
       {paged.length === 0 && (
-        <div className="text-center py-16 space-y-4">
+        <div className="text-center py-16 space-y-5">
+          <p className="font-display text-2xl text-amber">Even Panqueca couldn't find what you're looking for!</p>
           <img
             src={`${import.meta.env.BASE_URL}panqueca-not-found.jpeg`}
             alt="Panqueca the dog searching through CDs"
-            className="mx-auto w-64 rounded-xl shadow-lg"
+            className="mx-auto w-80 sm:w-96 rounded-xl shadow-lg"
           />
-          <p className="text-muted text-lg">No CDs found</p>
-          <p className="text-muted-dark text-sm">Even Panqueca couldn't find what you're looking for!</p>
+          <p className="text-muted-dark text-sm">Try adjusting your search or filters</p>
         </div>
       )}
 
@@ -132,14 +132,14 @@ function DvdBrowse() {
       </div>
 
       {paged.length === 0 && (
-        <div className="text-center py-16 space-y-4">
+        <div className="text-center py-16 space-y-5">
+          <p className="font-display text-2xl text-amber">Even Panqueca couldn't find what you're looking for!</p>
           <img
             src={`${import.meta.env.BASE_URL}panqueca-not-found.jpeg`}
             alt="Panqueca the dog searching through DVDs"
-            className="mx-auto w-64 rounded-xl shadow-lg"
+            className="mx-auto w-80 sm:w-96 rounded-xl shadow-lg"
           />
-          <p className="text-muted text-lg">No DVDs found</p>
-          <p className="text-muted-dark text-sm">Even Panqueca couldn't find what you're looking for!</p>
+          <p className="text-muted-dark text-sm">Try adjusting your search or filters</p>
         </div>
       )}
 
