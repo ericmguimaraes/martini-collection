@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import stats from '@/data/stats.json'
 import type { CollectionStats } from '@/types/stats'
+import { useLanguage } from '@/i18n'
 import StatCard from '@/components/stats/StatCard'
 import HorizontalBarChart from '@/components/stats/HorizontalBarChart'
 import BarChart from '@/components/stats/BarChart'
@@ -18,51 +20,53 @@ const s = stats as CollectionStats
 const jazzCount = s.cd.tagDistribution.find(t => t.tag === 'Jazz')?.count || 0
 const jazzPct = Math.round((jazzCount / s.totalCds) * 100)
 
-// Radar dimensions for collector taste fingerprint
 const mpbCount = s.cd.tagDistribution.find(t => t.tag === 'Música Brasileira')?.count || 0
 const classicalCount = s.cd.tagDistribution.find(t => t.tag === 'Música Clássica')?.count || 0
-const radarData = [
-  { dimension: 'Jazz Depth', value: Math.round((jazzCount / s.totalCds) * 100) },
-  { dimension: 'Brazilian Music', value: Math.round((mpbCount / s.totalCds) * 100) },
-  { dimension: 'Classical', value: Math.round((classicalCount / s.totalCds) * 100) },
-  { dimension: 'Classic Cinema', value: s.dvd.prePct1970 },
-  { dimension: 'Quality Bar', value: Math.round(s.dvd.avgImdbRating * 10) },
-  { dimension: 'International', value: Math.round((1 - (s.dvd.countryDistribution.find(c => (c as Record<string, unknown>).country === 'USA')?.count || 0) / s.totalDvds) * 100) },
-]
 
 const cdTagKeys = ['Jazz', 'Música Brasileira', 'Rock', 'Classical', 'Pop', 'Blues', 'Latin']
 const dvdGenreKeys = ['Drama', 'Romance', 'Comedy', 'Crime', 'Thriller', 'Music', 'Film-Noir']
 
 export default function InsightsPage() {
+  const { t } = useLanguage()
+
+  const radarData = useMemo(() => [
+    { dimension: t('insights.jazzDepth'), value: Math.round((jazzCount / s.totalCds) * 100) },
+    { dimension: t('insights.brazilianMusic'), value: Math.round((mpbCount / s.totalCds) * 100) },
+    { dimension: t('insights.classical'), value: Math.round((classicalCount / s.totalCds) * 100) },
+    { dimension: t('insights.classicCinema'), value: s.dvd.prePct1970 },
+    { dimension: t('insights.qualityBarRadar'), value: Math.round(s.dvd.avgImdbRating * 10) },
+    { dimension: t('insights.international'), value: Math.round((1 - (s.dvd.countryDistribution.find(c => (c as Record<string, unknown>).country === 'USA')?.count || 0) / s.totalDvds) * 100) },
+  ], [t])
+
   return (
     <div className="px-4 py-8">
       <div className="mx-auto max-w-5xl space-y-12">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="font-display text-4xl text-amber">Collection Insights</h1>
-          <p className="text-muted">A data-driven look at the Martini Collection</p>
+          <h1 className="font-display text-4xl text-amber">{t('insights.title')}</h1>
+          <p className="text-muted">{t('insights.subtitle')}</p>
         </div>
 
         {/* Overview Stats */}
         <RevealSection>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <StatCard label="CDs" value={s.totalCds} />
-            <StatCard label="DVDs" value={s.totalDvds} />
-            <StatCard label="Artists" value={s.uniqueArtists} />
-            <StatCard label="Directors" value={s.uniqueDirectors} />
-            <StatCard label="Labels" value={s.uniqueLabels} />
+            <StatCard label={t('insights.cds')} value={s.totalCds} />
+            <StatCard label={t('insights.dvds')} value={s.totalDvds} />
+            <StatCard label={t('insights.artists')} value={s.uniqueArtists} />
+            <StatCard label={t('insights.directorsLabel')} value={s.uniqueDirectors} />
+            <StatCard label={t('insights.labels')} value={s.uniqueLabels} />
           </div>
         </RevealSection>
 
         {/* CD Section */}
         <div className="space-y-6">
           <h2 className="font-display text-2xl text-foreground border-b border-surface-light pb-2">
-            CD Collection
+            {t('insights.cdCollection')}
           </h2>
 
           <RevealSection>
             <HorizontalBarChart
-              title="Tags"
+              title={t('insights.tags')}
               data={s.cd.tagDistribution.map(t => ({ label: t.tag, value: t.count }))}
             />
           </RevealSection>
@@ -70,19 +74,19 @@ export default function InsightsPage() {
           <RevealSection>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <HorizontalBarChart
-                title="Top Genres"
+                title={t('insights.topGenres')}
                 data={s.cd.genreDistribution.map(g => ({ label: g.genre, value: g.count }))}
                 maxItems={12}
               />
-              <TopList title="Top Artists" data={s.cd.topArtists} />
+              <TopList title={t('insights.topArtists')} data={s.cd.topArtists} />
             </div>
           </RevealSection>
 
           <RevealSection>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <TopList title="Top Labels" data={s.cd.topLabels} />
+              <TopList title={t('insights.topLabels')} data={s.cd.topLabels} />
               <LineChart
-                title="Cataloging Timeline"
+                title={t('insights.catalogingTimeline')}
                 data={s.cd.catalogingTimeline.map(t => ({ x: t.month, y: t.count }))}
               />
             </div>
@@ -92,21 +96,21 @@ export default function InsightsPage() {
         {/* DVD Section */}
         <div className="space-y-6">
           <h2 className="font-display text-2xl text-foreground border-b border-surface-light pb-2">
-            DVD Collection
+            {t('insights.dvdCollection')}
           </h2>
 
           <RevealSection>
             <HorizontalBarChart
-              title="Genres"
+              title={t('insights.genres')}
               data={s.dvd.genreDistribution.map(g => ({ label: g.genre, value: g.count }))}
             />
           </RevealSection>
 
           <RevealSection>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <TopList title="Top Directors" data={s.dvd.topDirectors} />
+              <TopList title={t('insights.topDirectors')} data={s.dvd.topDirectors} />
               <LineChart
-                title="DVDs by Decade"
+                title={t('insights.dvdsByDecade')}
                 data={s.dvd.byDecade.map(d => ({ x: d.decade, y: d.count }))}
                 area
               />
@@ -116,12 +120,12 @@ export default function InsightsPage() {
           <RevealSection>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <BarChart
-                title="IMDb Rating Distribution"
+                title={t('insights.imdbRatingDistribution')}
                 data={s.dvd.ratingDistribution.map(r => ({ label: r.rating, value: r.count }))}
                 annotation={`avg ${s.dvd.avgImdbRating}`}
               />
               <PieChart
-                title="Country of Origin"
+                title={t('insights.countryOfOrigin')}
                 data={s.dvd.countryDistribution.slice(0, 8).map(c => ({ label: c.country, value: c.count }))}
                 donut
               />
@@ -131,10 +135,10 @@ export default function InsightsPage() {
           <RevealSection>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <PieChart
-                title="Color vs B&W"
+                title={t('insights.colorVsBw')}
                 data={s.dvd.colorDistribution.map(c => ({ label: c.color, value: c.count }))}
               />
-              <TopList title="Top Actors" data={s.dvd.topActors} />
+              <TopList title={t('insights.topActors')} data={s.dvd.topActors} />
             </div>
           </RevealSection>
         </div>
@@ -142,7 +146,7 @@ export default function InsightsPage() {
         {/* Cross-Collection */}
         <div className="space-y-6">
           <h2 className="font-display text-2xl text-foreground border-b border-surface-light pb-2">
-            Across Collections
+            {t('insights.acrossCollections')}
           </h2>
 
           <RevealSection>
@@ -163,39 +167,39 @@ export default function InsightsPage() {
           </RevealSection>
         </div>
 
-        {/* ── Deep Analysis ─────────────────────────────────────────── */}
+        {/* Deep Analysis */}
         <div className="border-t border-amber/20 pt-8 space-y-12">
           <div className="text-center space-y-2">
-            <h2 className="font-display text-3xl text-amber">Deep Analysis</h2>
-            <p className="text-muted">Patterns, evolution, and connections beneath the surface</p>
+            <h2 className="font-display text-3xl text-amber">{t('insights.deepAnalysis')}</h2>
+            <p className="text-muted">{t('insights.deepAnalysisSubtitle')}</p>
           </div>
 
           {/* Collection Patterns */}
           <div className="space-y-6">
             <h3 className="font-display text-xl text-foreground border-b border-surface-light pb-2">
-              Collection Patterns
+              {t('insights.collectionPatterns')}
             </h3>
 
             <RevealSection>
               <HeatmapChart
-                title="CD Genre Co-occurrence"
+                title={t('insights.cdGenreCoOccurrence')}
                 data={s.deep.cdGenreCoOccurrence}
-                annotation="Which genres appear together on the same CDs"
+                annotation={t('insights.cdGenreCoOccurrenceAnnotation')}
               />
             </RevealSection>
 
             <RevealSection>
               <HeatmapChart
-                title="DVD Genre Co-occurrence"
+                title={t('insights.dvdGenreCoOccurrence')}
                 data={s.deep.dvdGenreCoOccurrence}
-                annotation="Which genres pair together in films"
+                annotation={t('insights.dvdGenreCoOccurrenceAnnotation')}
               />
             </RevealSection>
 
             <RevealSection>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <HeatmapChart
-                  title="Label Identity"
+                  title={t('insights.labelIdentity')}
                   data={(() => {
                     const pairs: { source: string; target: string; value: number }[] = []
                     for (const row of s.deep.labelGenreAffinity) {
@@ -208,12 +212,12 @@ export default function InsightsPage() {
                     }
                     return pairs
                   })()}
-                  annotation="% of each label's catalog by tag"
+                  annotation={t('insights.labelIdentityAnnotation')}
                 />
                 <BarChart
-                  title="Artist Depth"
+                  title={t('insights.artistDepth')}
                   data={s.deep.artistTiers.map(t => ({ label: t.tier, value: t.count }))}
-                  annotation={`${s.uniqueArtists} unique artists`}
+                  annotation={`${s.uniqueArtists} ${t('insights.artists').toLowerCase()}`}
                 />
               </div>
             </RevealSection>
@@ -222,18 +226,18 @@ export default function InsightsPage() {
           {/* Through the Decades */}
           <div className="space-y-6">
             <h3 className="font-display text-xl text-foreground border-b border-surface-light pb-2">
-              Through the Decades
+              {t('insights.throughTheDecades')}
             </h3>
 
             <RevealSection>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <BarChart
-                  title="CDs by Decade"
+                  title={t('insights.cdsByDecade')}
                   data={s.deep.cdByDecade.map(d => ({ label: d.decade, value: d.count }))}
-                  annotation={`${s.deep.cdReleaseYearCoverage}% of CDs have release year`}
+                  annotation={`${s.deep.cdReleaseYearCoverage}% ${t('insights.cds').toLowerCase()}`}
                 />
                 <LineChart
-                  title="IMDb Rating by Decade"
+                  title={t('insights.imdbRatingByDecade')}
                   data={s.deep.dvdRatingByDecade.map(d => ({ x: d.decade, y: d.avgRating }))}
                 />
               </div>
@@ -241,21 +245,21 @@ export default function InsightsPage() {
 
             <RevealSection>
               <StackedBarChart
-                title="CD Collection by Decade"
+                title={t('insights.cdCollectionByDecade')}
                 data={s.deep.cdTagByDecade}
                 indexKey="decade"
                 keys={cdTagKeys}
-                annotation="How the musical taste spans across decades"
+                annotation={t('insights.cdCollectionByDecadeAnnotation')}
               />
             </RevealSection>
 
             <RevealSection>
               <StackedBarChart
-                title="DVD Collection by Decade"
+                title={t('insights.dvdCollectionByDecade')}
                 data={s.deep.dvdGenreByDecade}
                 indexKey="decade"
                 keys={dvdGenreKeys}
-                annotation="Genre evolution in cinema across decades"
+                annotation={t('insights.dvdCollectionByDecadeAnnotation')}
               />
             </RevealSection>
           </div>
@@ -263,14 +267,14 @@ export default function InsightsPage() {
           {/* Music Meets Cinema */}
           <div className="space-y-6">
             <h3 className="font-display text-xl text-foreground border-b border-surface-light pb-2">
-              Music Meets Cinema
+              {t('insights.musicMeetsCinema')}
             </h3>
 
             {s.deep.composerCrossovers.length > 0 && (
               <RevealSection>
                 <div className="rounded-xl border border-surface-light bg-surface p-5 space-y-4">
-                  <h3 className="font-display text-lg text-foreground">Composers Bridging Both Worlds</h3>
-                  <p className="text-xs text-muted-dark">CD artists who also appear as musicians/composers in DVDs</p>
+                  <h3 className="font-display text-lg text-foreground">{t('insights.composersBridging')}</h3>
+                  <p className="text-xs text-muted-dark">{t('insights.composersBridgingDesc')}</p>
                   <div className="space-y-3">
                     {s.deep.composerCrossovers.slice(0, 8).map(c => (
                       <div key={c.name} className="rounded-lg bg-surface-hover p-3">
@@ -279,11 +283,11 @@ export default function InsightsPage() {
                           <span className="text-xs text-muted-dark font-mono">{c.cdCount} CDs / {c.dvdTitles.length} DVDs</span>
                         </div>
                         <div className="mt-1 flex flex-wrap gap-1">
-                          {c.dvdTitles.slice(0, 6).map(t => (
-                            <span key={t} className="text-xs text-amber/80 bg-amber/5 rounded px-1.5 py-0.5">{t}</span>
+                          {c.dvdTitles.slice(0, 6).map(title => (
+                            <span key={title} className="text-xs text-amber/80 bg-amber/5 rounded px-1.5 py-0.5">{title}</span>
                           ))}
                           {c.dvdTitles.length > 6 && (
-                            <span className="text-xs text-muted-dark">+{c.dvdTitles.length - 6} more</span>
+                            <span className="text-xs text-muted-dark">{t('common.more', { count: c.dvdTitles.length - 6 })}</span>
                           )}
                         </div>
                       </div>
@@ -296,8 +300,8 @@ export default function InsightsPage() {
             {s.deep.actorCrossovers.length > 0 && (
               <RevealSection>
                 <div className="rounded-xl border border-surface-light bg-surface p-5 space-y-4">
-                  <h3 className="font-display text-lg text-foreground">Artists on Screen</h3>
-                  <p className="text-xs text-muted-dark">CD artists who appear as actors in DVDs</p>
+                  <h3 className="font-display text-lg text-foreground">{t('insights.artistsOnScreen')}</h3>
+                  <p className="text-xs text-muted-dark">{t('insights.artistsOnScreenDesc')}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {s.deep.actorCrossovers.slice(0, 12).map(a => (
                       <div key={a.name} className="rounded-lg bg-surface-hover p-3">
@@ -306,11 +310,11 @@ export default function InsightsPage() {
                           <span className="text-xs text-muted-dark font-mono">{a.cdCount} CDs / {a.dvdTitles.length} DVDs</span>
                         </div>
                         <div className="mt-1 flex flex-wrap gap-1">
-                          {a.dvdTitles.slice(0, 3).map(t => (
-                            <span key={t} className="text-xs text-amber/70 bg-amber/5 rounded px-1.5 py-0.5">{t}</span>
+                          {a.dvdTitles.slice(0, 3).map(title => (
+                            <span key={title} className="text-xs text-amber/70 bg-amber/5 rounded px-1.5 py-0.5">{title}</span>
                           ))}
                           {a.dvdTitles.length > 3 && (
-                            <span className="text-xs text-muted-dark">+{a.dvdTitles.length - 3}</span>
+                            <span className="text-xs text-muted-dark">{t('common.more', { count: a.dvdTitles.length - 3 })}</span>
                           )}
                         </div>
                       </div>
@@ -323,12 +327,12 @@ export default function InsightsPage() {
             <RevealSection>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <PieChart
-                  title="Music DVDs by Category"
+                  title={t('insights.musicDvdsByCategory')}
                   data={s.deep.musicDvdBreakdown.map(c => ({ label: c.category, value: c.count }))}
                   donut
                 />
                 <RadarChart
-                  title="Collector Taste Fingerprint"
+                  title={t('insights.collectorTasteFingerprint')}
                   data={radarData}
                 />
               </div>
@@ -337,8 +341,8 @@ export default function InsightsPage() {
             {s.deep.tagGenreBridge.length > 0 && (
               <RevealSection>
                 <div className="rounded-xl border border-surface-light bg-surface p-5 space-y-4">
-                  <h3 className="font-display text-lg text-foreground">Music-to-Film Genre Bridge</h3>
-                  <p className="text-xs text-muted-dark">When shared artists cross from music to film, which genres connect?</p>
+                  <h3 className="font-display text-lg text-foreground">{t('insights.musicToFilmGenreBridge')}</h3>
+                  <p className="text-xs text-muted-dark">{t('insights.musicToFilmGenreBridgeDesc')}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {s.deep.tagGenreBridge.map(bridge => (
                       <div key={bridge.cdTag} className="rounded-lg bg-surface-hover p-3 space-y-2">

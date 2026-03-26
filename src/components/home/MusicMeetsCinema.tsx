@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom'
 import type { CollectionStats } from '@/types/stats'
+import { useLanguage } from '@/i18n'
 
 interface MusicMeetsCinemaProps {
   stats: CollectionStats
 }
 
 function BridgeCard({ composer }: { composer: { name: string; cdCount: number; dvdTitles: string[] } }) {
+  const { t } = useLanguage()
+
   return (
     <div className="rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/20 group">
       <div className="h-0.5 bg-gradient-to-r from-amber via-copper to-transparent" />
@@ -35,7 +38,7 @@ function BridgeCard({ composer }: { composer: { name: string; cdCount: number; d
           ))}
           {composer.dvdTitles.length > 5 && (
             <span className="text-xs text-muted-dark px-1 py-1">
-              +{composer.dvdTitles.length - 5} more
+              {t('home.more', { count: composer.dvdTitles.length - 5 })}
             </span>
           )}
         </div>
@@ -45,7 +48,8 @@ function BridgeCard({ composer }: { composer: { name: string; cdCount: number; d
 }
 
 export default function MusicMeetsCinema({ stats }: MusicMeetsCinemaProps) {
-  // Show the top 4 most connected composers (sorted by DVD count descending)
+  const { t } = useLanguage()
+
   const topBridges = [...stats.deep.composerCrossovers]
     .sort((a, b) => b.dvdTitles.length - a.dvdTitles.length)
     .slice(0, 4)
@@ -57,14 +61,14 @@ export default function MusicMeetsCinema({ stats }: MusicMeetsCinemaProps) {
       <div className="mx-auto max-w-4xl space-y-4">
         <div className="flex items-baseline justify-between">
           <div className="space-y-1">
-            <h2 className="font-display text-2xl text-foreground">Music Meets Cinema</h2>
-            <p className="text-xs text-muted-dark">Composers who bridge the CD and DVD collections</p>
+            <h2 className="font-display text-2xl text-foreground">{t('home.musicMeetsCinema')}</h2>
+            <p className="text-xs text-muted-dark">{t('home.musicMeetsCinemaDesc')}</p>
           </div>
           <Link
             to="/insights"
             className="text-xs text-muted hover:text-amber transition-colors font-mono"
           >
-            See all insights &rarr;
+            {t('home.seeAllInsights')}
           </Link>
         </div>
 

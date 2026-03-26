@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import cds from '@/data/cds.json'
 import dvds from '@/data/dvds.json'
@@ -11,6 +12,7 @@ import { useQueryParams } from '@/hooks/useQueryParams'
 import { useFilteredCds, useFilteredDvds } from '@/hooks/useFilteredItems'
 import { getTagColor, getGenreColor } from '@/lib/colors'
 import { formatNumber } from '@/lib/format'
+import { useLanguage } from '@/i18n'
 import SearchBar from '@/components/shared/SearchBar'
 import FilterBar from '@/components/shared/FilterBar'
 import SortSelect from '@/components/shared/SortSelect'
@@ -22,32 +24,24 @@ const cdData = cds as CdItem[]
 const dvdData = dvds as DvdItem[]
 const s = stats as CollectionStats
 
-const CD_SORT_OPTIONS: { label: string; field: SortField; direction: SortDirection }[] = [
-  { label: 'Artist A–Z', field: 'artist', direction: 'asc' },
-  { label: 'Artist Z–A', field: 'artist', direction: 'desc' },
-  { label: 'Title A–Z', field: 'title', direction: 'asc' },
-  { label: 'Year (newest)', field: 'year', direction: 'desc' },
-  { label: 'Year (oldest)', field: 'year', direction: 'asc' },
-]
-
-const DVD_SORT_OPTIONS: { label: string; field: SortField; direction: SortDirection }[] = [
-  { label: 'Title A–Z', field: 'title', direction: 'asc' },
-  { label: 'Director A–Z', field: 'director', direction: 'asc' },
-  { label: 'Year (newest)', field: 'year', direction: 'desc' },
-  { label: 'Year (oldest)', field: 'year', direction: 'asc' },
-  { label: 'Rating (best)', field: 'rating', direction: 'desc' },
-  { label: 'Rating (lowest)', field: 'rating', direction: 'asc' },
-]
-
 const cdTags = s.cd.tagDistribution.map(t => t.tag)
 const dvdGenres = s.dvd.genreDistribution.map(g => g.genre)
 
 function CdBrowse() {
+  const { t } = useLanguage()
   const { state, setQuery, toggleTag, setSort, setPage } = useQueryParams('cds')
   const filtered = useFilteredCds(cdData, state)
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const page = Math.min(state.page, totalPages)
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+
+  const sortOptions = useMemo((): { label: string; field: SortField; direction: SortDirection }[] => [
+    { label: t('browse.sortArtistAZ'), field: 'artist', direction: 'asc' },
+    { label: t('browse.sortArtistZA'), field: 'artist', direction: 'desc' },
+    { label: t('browse.sortTitleAZ'), field: 'title', direction: 'asc' },
+    { label: t('browse.sortYearNewest'), field: 'year', direction: 'desc' },
+    { label: t('browse.sortYearOldest'), field: 'year', direction: 'asc' },
+  ], [t])
 
   return (
     <>
@@ -55,20 +49,20 @@ function CdBrowse() {
         <SearchBar
           value={state.query}
           onChange={setQuery}
-          placeholder="Search artists, albums, labels, genres..."
+          placeholder={t('browse.searchCdsPlaceholder')}
         />
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <FilterBar options={cdTags} selected={state.tags} onToggle={toggleTag} colorFn={getTagColor} />
           </div>
           <SortSelect
-            options={CD_SORT_OPTIONS}
+            options={sortOptions}
             value={`${state.sort}-${state.direction}`}
             onChange={setSort}
           />
         </div>
         <p className="text-xs text-muted">
-          Showing {formatNumber(paged.length)} of {formatNumber(filtered.length)} CDs
+          {t('browse.showingCds', { count: formatNumber(paged.length), total: formatNumber(filtered.length) })}
         </p>
       </div>
 
@@ -80,13 +74,13 @@ function CdBrowse() {
 
       {paged.length === 0 && (
         <div className="text-center py-16 space-y-5">
-          <p className="font-display text-2xl text-amber">Even Panqueca couldn't find what you're looking for!</p>
+          <p className="font-display text-2xl text-amber">{t('browse.emptyTitle')}</p>
           <img
             src={`${import.meta.env.BASE_URL}panqueca-not-found.jpeg`}
-            alt="Panqueca the dog searching through CDs"
+            alt={t('browse.emptyAltCds')}
             className="mx-auto w-80 sm:w-96 rounded-xl shadow-lg"
           />
-          <p className="text-muted-dark text-sm">Try adjusting your search or filters</p>
+          <p className="text-muted-dark text-sm">{t('browse.emptyHint')}</p>
         </div>
       )}
 
@@ -96,11 +90,21 @@ function CdBrowse() {
 }
 
 function DvdBrowse() {
+  const { t } = useLanguage()
   const { state, setQuery, toggleGenre, setSort, setPage } = useQueryParams('dvds')
   const filtered = useFilteredDvds(dvdData, state)
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const page = Math.min(state.page, totalPages)
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+
+  const sortOptions = useMemo((): { label: string; field: SortField; direction: SortDirection }[] => [
+    { label: t('browse.sortTitleAZ'), field: 'title', direction: 'asc' },
+    { label: t('browse.sortDirectorAZ'), field: 'director', direction: 'asc' },
+    { label: t('browse.sortYearNewest'), field: 'year', direction: 'desc' },
+    { label: t('browse.sortYearOldest'), field: 'year', direction: 'asc' },
+    { label: t('browse.sortRatingBest'), field: 'rating', direction: 'desc' },
+    { label: t('browse.sortRatingLowest'), field: 'rating', direction: 'asc' },
+  ], [t])
 
   return (
     <>
@@ -108,20 +112,20 @@ function DvdBrowse() {
         <SearchBar
           value={state.query}
           onChange={setQuery}
-          placeholder="Search titles, directors, actors, genres..."
+          placeholder={t('browse.searchDvdsPlaceholder')}
         />
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <FilterBar options={dvdGenres} selected={state.genres} onToggle={toggleGenre} colorFn={getGenreColor} />
           </div>
           <SortSelect
-            options={DVD_SORT_OPTIONS}
+            options={sortOptions}
             value={`${state.sort}-${state.direction}`}
             onChange={setSort}
           />
         </div>
         <p className="text-xs text-muted">
-          Showing {formatNumber(paged.length)} of {formatNumber(filtered.length)} DVDs
+          {t('browse.showingDvds', { count: formatNumber(paged.length), total: formatNumber(filtered.length) })}
         </p>
       </div>
 
@@ -133,13 +137,13 @@ function DvdBrowse() {
 
       {paged.length === 0 && (
         <div className="text-center py-16 space-y-5">
-          <p className="font-display text-2xl text-amber">Even Panqueca couldn't find what you're looking for!</p>
+          <p className="font-display text-2xl text-amber">{t('browse.emptyTitle')}</p>
           <img
             src={`${import.meta.env.BASE_URL}panqueca-not-found.jpeg`}
-            alt="Panqueca the dog searching through DVDs"
+            alt={t('browse.emptyAltDvds')}
             className="mx-auto w-80 sm:w-96 rounded-xl shadow-lg"
           />
-          <p className="text-muted-dark text-sm">Try adjusting your search or filters</p>
+          <p className="text-muted-dark text-sm">{t('browse.emptyHint')}</p>
         </div>
       )}
 
@@ -150,6 +154,7 @@ function DvdBrowse() {
 
 export default function BrowsePage() {
   const { type } = useParams<{ type: string }>()
+  const { t } = useLanguage()
 
   if (type !== 'cds' && type !== 'dvds') {
     return <Navigate to="/browse/cds" replace />
@@ -161,7 +166,7 @@ export default function BrowsePage() {
     <div className="px-4 py-6">
       <div className="mx-auto max-w-5xl space-y-4">
         <h1 className="font-display text-3xl text-amber">
-          Browse {isCds ? 'CDs' : 'DVDs'}
+          {isCds ? t('browse.browseCds') : t('browse.browseDvds')}
         </h1>
 
         {isCds ? <CdBrowse /> : <DvdBrowse />}

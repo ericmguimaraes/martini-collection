@@ -1,4 +1,5 @@
 import type { CollectionStats } from '@/types/stats'
+import { useLanguage } from '@/i18n'
 
 interface SpotlightStatsProps {
   stats: CollectionStats
@@ -28,51 +29,49 @@ function StatCard({ title, value, description, accent = 'amber' }: StatCardProps
 }
 
 export default function SpotlightStats({ stats }: SpotlightStatsProps) {
-  // The collection's musical DNA: strongest genre co-occurrence
+  const { t } = useLanguage()
+
   const topCoOccurrence = stats.deep.cdGenreCoOccurrence[0]
   const topPairValue = topCoOccurrence?.value ?? 0
 
-  // Quality consistency: min-max IMDb across decades (excluding tiny samples)
   const significantDecades = stats.deep.dvdRatingByDecade.filter(d => d.count >= 5)
   const minRating = Math.min(...significantDecades.map(d => d.avgRating))
   const maxRating = Math.max(...significantDecades.map(d => d.avgRating))
   const ratingRange = `${minRating.toFixed(1)}–${maxRating.toFixed(1)}`
 
-  // Depth over breadth
   const singleAlbumTier = stats.deep.artistTiers.find(t => t.tier === '1 album')
   const deepArtists = stats.deep.artistTiers
     .filter(t => !['1 album', '2 albums', '3–5 albums'].includes(t.tier))
     .reduce((sum, t) => sum + t.count, 0)
 
-  // Music meets cinema bridges
   const bridgeCount = stats.deep.composerCrossovers.length
 
   return (
     <section className="px-4">
       <div className="mx-auto max-w-4xl space-y-4">
-        <h2 className="font-display text-2xl text-foreground">Collection at a Glance</h2>
+        <h2 className="font-display text-2xl text-foreground">{t('home.collectionAtAGlance')}</h2>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard
-            title="Musical DNA"
+            title={t('home.musicalDna')}
             value={`${topPairValue}`}
-            description={`CDs bridge ${topCoOccurrence?.source ?? 'Latin'} & ${topCoOccurrence?.target ?? 'MPB'} — the collection's heartbeat`}
+            description={t('home.musicalDnaDesc', { source: topCoOccurrence?.source ?? 'Latin', target: topCoOccurrence?.target ?? 'MPB' })}
           />
           <StatCard
-            title="Quality Bar"
+            title={t('home.qualityBar')}
             value={ratingRange}
-            description="avg IMDb across every decade — unwavering for 100 years of cinema"
+            description={t('home.qualityBarDesc')}
             accent="copper"
           />
           <StatCard
-            title="Deep, Not Broad"
+            title={t('home.deepNotBroad')}
             value={`${deepArtists}`}
-            description={`artists with 6+ albums — ${singleAlbumTier?.count ?? 0} have just one`}
+            description={t('home.deepNotBroadDesc', { count: singleAlbumTier?.count ?? 0 })}
           />
           <StatCard
-            title="Worlds Bridged"
+            title={t('home.worldsBridged')}
             value={`${bridgeCount}`}
-            description="composers connect CDs to DVDs — music meets cinema"
+            description={t('home.worldsBridgedDesc')}
             accent="copper"
           />
         </div>

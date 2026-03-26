@@ -1,18 +1,21 @@
 import { NavLink } from 'react-router-dom'
-
-const links = [
-  { to: '/', label: 'Home' },
-  { to: '/browse/cds', label: 'CDs' },
-  { to: '/browse/dvds', label: 'DVDs' },
-  { to: '/insights', label: 'Insights' },
-  { to: '/vinyl', label: 'Vinyl', badge: 'Soon' },
-]
+import { useLanguage } from '@/i18n'
 
 export default function Navbar() {
+  const { language, setLanguage, t } = useLanguage()
+
+  const links = [
+    { to: '/', label: t('nav.home') },
+    { to: '/browse/cds', label: t('nav.cds') },
+    { to: '/browse/dvds', label: t('nav.dvds') },
+    { to: '/insights', label: t('nav.insights') },
+    { to: '/vinyl', label: t('nav.vinyl'), badge: t('nav.soon') },
+  ]
+
   return (
     <nav className="hidden md:flex items-center justify-between px-6 py-3 border-b border-surface-light bg-background/80 backdrop-blur-sm sticky top-0 z-50">
       <NavLink to="/" className="font-display text-xl text-amber hover:text-amber-light transition-colors">
-        The Martini Collection
+        {t('nav.siteTitle')}
       </NavLink>
 
       <div className="flex items-center gap-1">
@@ -36,6 +39,16 @@ export default function Navbar() {
             )}
           </NavLink>
         ))}
+
+        <button
+          onClick={() => setLanguage(language === 'en' ? 'pt' : 'en')}
+          className="ml-3 flex items-center gap-0.5 rounded-md px-2 py-1.5 text-xs font-mono border border-surface-light hover:border-amber/30 transition-colors"
+          aria-label={language === 'en' ? 'Mudar para Português' : 'Switch to English'}
+        >
+          <span className={language === 'en' ? 'text-amber font-bold' : 'text-muted'}>EN</span>
+          <span className="text-muted-dark">/</span>
+          <span className={language === 'pt' ? 'text-amber font-bold' : 'text-muted'}>PT</span>
+        </button>
       </div>
     </nav>
   )
