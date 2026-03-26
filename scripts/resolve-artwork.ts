@@ -111,84 +111,67 @@ function saveCache(cache: ArtworkCache) {
 // ── iTunes Search API ────────────────────────────────────────────────────
 
 async function fetchItunesArt(artist: string, album: string): Promise<string | null> {
-  try {
-    const q = encodeURIComponent(`${artist} ${album}`)
-    const res = await fetch(
-      `https://itunes.apple.com/search?term=${q}&media=music&entity=album&limit=1`
-    )
-    if (!res.ok) return null
-    const data = await res.json()
-    const artUrl = data.results?.[0]?.artworkUrl100
-    if (!artUrl) return null
-    return artUrl.replace('100x100', '600x600')
-  } catch {
-    return null
-  }
+  const q = encodeURIComponent(`${artist} ${album}`)
+  const res = await fetch(
+    `https://itunes.apple.com/search?term=${q}&media=music&entity=album&limit=1`
+  )
+  if (!res.ok) throw new Error(`iTunes HTTP ${res.status}`)
+  const data = await res.json()
+  const artUrl = data.results?.[0]?.artworkUrl100
+  if (!artUrl) return null
+  return artUrl.replace('100x100', '600x600')
 }
 
 // ── MusicBrainz + Cover Art Archive ──────────────────────────────────────
 
 async function fetchMusicBrainzArt(artist: string, album: string): Promise<string | null> {
-  try {
-    // Search MusicBrainz for the release
-    const q = encodeURIComponent(`release:"${album}" AND artist:"${artist}"`)
-    const res = await fetch(
-      `https://musicbrainz.org/ws/2/release/?query=${q}&limit=1&fmt=json`,
-      { headers: { 'User-Agent': 'MartiniCollection/1.0 (github.com/ericmguimaraes/martini-collection)' } }
-    )
-    if (!res.ok) return null
-    const data = await res.json()
-    const mbid = data.releases?.[0]?.id
-    if (!mbid) return null
+  // Search MusicBrainz for the release
+  const q = encodeURIComponent(`release:"${album}" AND artist:"${artist}"`)
+  const res = await fetch(
+    `https://musicbrainz.org/ws/2/release/?query=${q}&limit=1&fmt=json`,
+    { headers: { 'User-Agent': 'MartiniCollection/1.0 (github.com/ericmguimaraes/martini-collection)' } }
+  )
+  if (!res.ok) throw new Error(`MusicBrainz HTTP ${res.status}`)
+  const data = await res.json()
+  const mbid = data.releases?.[0]?.id
+  if (!mbid) return null
 
-    // Fetch cover from Cover Art Archive
-    const caaRes = await fetch(`https://coverartarchive.org/release/${mbid}`, {
-      redirect: 'follow',
-    })
-    if (!caaRes.ok) return null
-    const caaData = await caaRes.json()
-    const front = caaData.images?.find((img: { front: boolean }) => img.front)
-    return front?.thumbnails?.large || front?.thumbnails?.['500'] || front?.image || null
-  } catch {
-    return null
-  }
+  // Fetch cover from Cover Art Archive
+  const caaRes = await fetch(`https://coverartarchive.org/release/${mbid}`, {
+    redirect: 'follow',
+  })
+  if (!caaRes.ok) return null // 404 is normal (no cover)
+  const caaData = await caaRes.json()
+  const front = caaData.images?.find((img: { front: boolean }) => img.front)
+  return front?.thumbnails?.large || front?.thumbnails?.['500'] || front?.image || null
 }
 
 // ── TMDB ─────────────────────────────────────────────────────────────────
 
 async function fetchTmdbByImdbId(imdbId: string): Promise<string | null> {
   if (!TMDB_API_KEY) return null
-  try {
-    const res = await fetch(
-      `https://api.themoviedb.org/3/find/${imdbId}?external_source=imdb_id&api_key=${TMDB_API_KEY}`
-    )
-    if (!res.ok) return null
-    const data = await res.json()
-    // Check movie results first, then TV
-    const movie = data.movie_results?.[0]
-    if (movie?.poster_path) return `${TMDB_IMG_BASE}${movie.poster_path}`
-    const tv = data.tv_results?.[0]
-    if (tv?.poster_path) return `${TMDB_IMG_BASE}${tv.poster_path}`
-    return null
-  } catch {
-    return null
-  }
+  const res = await fetch(
+    `https://api.themoviedb.org/3/find/${imdbId}?external_source=imdb_id&api_key=${TMDB_API_KEY}`
+  )
+  if (!res.ok) throw new Error(`TMDB find HTTP ${res.status}`)
+  const data = await res.json()
+  const movie = data.movie_results?.[0]
+  if (movie?.poster_path) return `${TMDB_IMG_BASE}${movie.poster_path}`
+  const tv = data.tv_results?.[0]
+  if (tv?.poster_path) return `${TMDB_IMG_BASE}${tv.poster_path}`
+  return null
 }
 
 async function fetchTmdbByTitle(title: string, year: number | null): Promise<string | null> {
   if (!TMDB_API_KEY) return null
-  try {
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}`
-    if (year) url += `&year=${year}`
-    const res = await fetch(url)
-    if (!res.ok) return null
-    const data = await res.json()
-    const movie = data.results?.[0]
-    if (movie?.poster_path) return `${TMDB_IMG_BASE}${movie.poster_path}`
-    return null
-  } catch {
-    return null
-  }
+  let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}`
+  if (year) url += `&year=${year}`
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`TMDB search HTTP ${res.status}`)
+  const data = await res.json()
+  const movie = data.results?.[0]
+  if (movie?.poster_path) return `${TMDB_IMG_BASE}${movie.poster_path}`
+  return null
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────
@@ -205,14 +188,23 @@ async function main() {
   const cds = loadJson<CdItem[]>(CDS_PATH)
   const dvds = loadJson<DvdItem[]>(DVDS_PATH)
   const cache = loadCache()
+  const cachedCount = Object.keys(cache).length
+
+  console.log(`  Loaded ${cds.length} CDs, ${dvds.length} DVDs, ${cachedCount} cached entries`)
 
   // ── Resolve CD artwork ──────────────────────────────────────────────
 
   let cdResolved = 0
-  let cdSkipped = 0
+  let cdCached = 0
   let cdMissed = 0
+  let cdErrors = 0
 
-  for (const cd of cds) {
+  console.log(`\n── CDs (${cds.length}) ──`)
+
+  for (let i = 0; i < cds.length; i++) {
+    const cd = cds[i]
+    const prefix = `  [${i + 1}/${cds.length}]`
+
     // Check cache
     if (cache[cd.id]) {
       const entry = cache[cd.id]
@@ -220,54 +212,74 @@ async function main() {
         cd.artworkUrl = entry.url
         cd.artworkSource = entry.source
         cdResolved++
-      } else {
-        cdMissed++
       }
-      cdSkipped++
+      cdCached++
       continue
     }
 
     // Try iTunes
-    const itunesUrl = await fetchItunesArt(cd.artist, cd.title)
-    await sleep(ITUNES_DELAY)
-
-    if (itunesUrl) {
-      cd.artworkUrl = itunesUrl
-      cd.artworkSource = 'itunes'
-      cache[cd.id] = { url: itunesUrl, source: 'itunes', resolvedAt: new Date().toISOString() }
-      cdResolved++
-      continue
+    let source = ''
+    let url: string | null = null
+    try {
+      url = await fetchItunesArt(cd.artist, cd.title)
+      await sleep(ITUNES_DELAY)
+      if (url) source = 'itunes'
+    } catch (err) {
+      console.error(`${prefix} ERROR iTunes: ${cd.artist} — ${cd.title}: ${err}`)
+      cdErrors++
+      await sleep(ITUNES_DELAY)
     }
 
-    // Try MusicBrainz + Cover Art Archive
-    const caaUrl = await fetchMusicBrainzArt(cd.artist, cd.title)
-    await sleep(MUSICBRAINZ_DELAY)
-
-    if (caaUrl) {
-      cd.artworkUrl = caaUrl
-      cd.artworkSource = 'coverart'
-      cache[cd.id] = { url: caaUrl, source: 'coverart', resolvedAt: new Date().toISOString() }
-      cdResolved++
-      continue
+    // Fallback: MusicBrainz + Cover Art Archive
+    if (!url && !source) {
+      try {
+        url = await fetchMusicBrainzArt(cd.artist, cd.title)
+        await sleep(MUSICBRAINZ_DELAY)
+        if (url) source = 'coverart'
+      } catch (err) {
+        console.error(`${prefix} ERROR MusicBrainz: ${cd.artist} — ${cd.title}: ${err}`)
+        cdErrors++
+        await sleep(MUSICBRAINZ_DELAY)
+      }
     }
 
-    // No art found
-    cache[cd.id] = { url: null, source: 'none', resolvedAt: new Date().toISOString() }
-    cdMissed++
+    if (url) {
+      cd.artworkUrl = url
+      cd.artworkSource = source
+      cache[cd.id] = { url, source, resolvedAt: new Date().toISOString() }
+      cdResolved++
+      console.log(`${prefix} ✓ ${source}: ${cd.artist} — ${cd.title}`)
+    } else {
+      cache[cd.id] = { url: null, source: 'none', resolvedAt: new Date().toISOString() }
+      cdMissed++
+      console.log(`${prefix} ✗ miss: ${cd.artist} — ${cd.title}`)
+    }
+
+    // Save cache every 50 items so progress isn't lost on crash
+    if ((i + 1) % 50 === 0) {
+      saveCache(cache)
+      console.log(`  (cache saved at ${i + 1})`)
+    }
   }
 
-  console.log(`  CDs: ${cdResolved} resolved, ${cdMissed} missed, ${cdSkipped} from cache`)
+  console.log(`\n  CDs summary: ${cdResolved} resolved, ${cdMissed} missed, ${cdCached} cached, ${cdErrors} errors`)
 
   // ── Resolve DVD posters ─────────────────────────────────────────────
 
   let dvdResolved = 0
-  let dvdSkipped = 0
+  let dvdCached = 0
   let dvdMissed = 0
+  let dvdErrors = 0
 
   if (!TMDB_API_KEY) {
-    console.log('  DVDs: skipped (no TMDB_API_KEY set)')
+    console.log('\n── DVDs: skipped (no TMDB_API_KEY set) ──')
   } else {
-    for (const dvd of dvds) {
+    console.log(`\n── DVDs (${dvds.length}) ──`)
+
+    for (let i = 0; i < dvds.length; i++) {
+      const dvd = dvds[i]
+      const prefix = `  [${i + 1}/${dvds.length}]`
+
       // Check cache
       if (cache[dvd.id]) {
         const entry = cache[dvd.id]
@@ -275,10 +287,8 @@ async function main() {
           dvd.posterUrl = entry.url
           dvd.posterSource = entry.source
           dvdResolved++
-        } else {
-          dvdMissed++
         }
-        dvdSkipped++
+        dvdCached++
         continue
       }
 
@@ -286,17 +296,29 @@ async function main() {
 
       // Try TMDB by IMDb ID
       if (dvd.imdbId) {
-        posterUrl = await fetchTmdbByImdbId(dvd.imdbId)
-        await sleep(TMDB_DELAY)
+        try {
+          posterUrl = await fetchTmdbByImdbId(dvd.imdbId)
+          await sleep(TMDB_DELAY)
+        } catch (err) {
+          console.error(`${prefix} ERROR TMDB/imdb: ${dvd.title} (${dvd.imdbId}): ${err}`)
+          dvdErrors++
+          await sleep(TMDB_DELAY)
+        }
       }
 
       // Fallback: TMDB search by title
       if (!posterUrl) {
-        posterUrl = await fetchTmdbByTitle(
-          dvd.originalTitle || dvd.title,
-          dvd.releaseYear
-        )
-        await sleep(TMDB_DELAY)
+        try {
+          posterUrl = await fetchTmdbByTitle(
+            dvd.originalTitle || dvd.title,
+            dvd.releaseYear
+          )
+          await sleep(TMDB_DELAY)
+        } catch (err) {
+          console.error(`${prefix} ERROR TMDB/search: ${dvd.title} (${dvd.releaseYear}): ${err}`)
+          dvdErrors++
+          await sleep(TMDB_DELAY)
+        }
       }
 
       if (posterUrl) {
@@ -304,13 +326,21 @@ async function main() {
         dvd.posterSource = 'tmdb'
         cache[dvd.id] = { url: posterUrl, source: 'tmdb', resolvedAt: new Date().toISOString() }
         dvdResolved++
+        console.log(`${prefix} ✓ tmdb: ${dvd.title} (${dvd.releaseYear ?? '?'})`)
       } else {
         cache[dvd.id] = { url: null, source: 'none', resolvedAt: new Date().toISOString() }
         dvdMissed++
+        console.log(`${prefix} ✗ miss: ${dvd.title} (${dvd.releaseYear ?? '?'})`)
+      }
+
+      // Save cache every 50 items
+      if ((i + 1) % 50 === 0) {
+        saveCache(cache)
+        console.log(`  (cache saved at ${i + 1})`)
       }
     }
 
-    console.log(`  DVDs: ${dvdResolved} resolved, ${dvdMissed} missed, ${dvdSkipped} from cache`)
+    console.log(`\n  DVDs summary: ${dvdResolved} resolved, ${dvdMissed} missed, ${dvdCached} cached, ${dvdErrors} errors`)
   }
 
   // ── Write enriched data back ────────────────────────────────────────
@@ -319,7 +349,7 @@ async function main() {
   writeFileSync(DVDS_PATH, JSON.stringify(dvds, null, 2))
   saveCache(cache)
 
-  console.log('Artwork resolution complete.')
+  console.log('\nArtwork resolution complete.')
 }
 
 main()
