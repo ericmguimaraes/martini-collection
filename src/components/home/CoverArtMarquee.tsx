@@ -7,24 +7,10 @@ interface CoverArtMarqueeProps {
   cds: CdItem[]
 }
 
-const NOTABLE_LABELS = new Set([
-  'Blue Note', 'Verve', 'Columbia', 'Prestige', 'Impulse!', 'ECM',
-  'Atlantic', 'Riverside', 'Fantasy', 'CTI', 'Pacific Jazz',
-  'Concord', 'Pablo', 'Savoy', 'Contemporary',
-  'Decca', 'Mercury', 'Warner Bros.', 'Capitol', 'Nonesuch',
-  'A&M', 'Island', 'Elektra', 'RCA Victor', 'Reprise',
-  'Polydor', 'Philips', 'MCA', 'Epic', 'Geffen',
-])
-
 function pickMarqueeCds(cds: CdItem[], count: number): CdItem[] {
-  // Pick CDs likely to have good cover art
-  const candidates = cds.filter(cd => {
-    const coreTag = cd.tag === 'Jazz' || cd.tag === 'Música Brasileira' || cd.tag === 'Rock'
-    const goodLabel = NOTABLE_LABELS.has(cd.label)
-    return coreTag || goodLabel
-  })
-  // Deterministic shuffle based on array length (stable across renders)
-  const sorted = [...candidates].sort((a, b) => {
+  // Deterministic shuffle — all CDs are candidates since tiles without
+  // iTunes art render as null, so only real covers will be visible
+  const sorted = [...cds].sort((a, b) => {
     const ha = hashCode(a.id)
     const hb = hashCode(b.id)
     return ha - hb
@@ -81,7 +67,7 @@ function MarqueeRow({ cds, direction }: { cds: CdItem[]; direction: 'left' | 'ri
 }
 
 export default function CoverArtMarquee({ cds }: CoverArtMarqueeProps) {
-  const row1 = useMemo(() => pickMarqueeCds(cds, 40), [cds])
+  const row1 = useMemo(() => pickMarqueeCds(cds, 60), [cds])
   const row2 = useMemo(() => {
     // Pick a different set for row 2
     const row1Ids = new Set(row1.map(c => c.id))
