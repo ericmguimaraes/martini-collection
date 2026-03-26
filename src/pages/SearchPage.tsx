@@ -6,6 +6,7 @@ import type { CdItem } from '@/types/cd'
 import type { DvdItem } from '@/types/dvd'
 import { searchItems } from '@/lib/search'
 import { formatNumber } from '@/lib/format'
+import { useLanguage } from '@/i18n'
 import SearchBar from '@/components/shared/SearchBar'
 import CdCard from '@/components/cd/CdCard'
 import DvdCard from '@/components/dvd/DvdCard'
@@ -18,11 +19,13 @@ function ResultSection({
   title,
   count,
   browseUrl,
+  viewAllLabel,
   children,
 }: {
   title: string
   count: number
   browseUrl: string
+  viewAllLabel: string
   children: React.ReactNode
 }) {
   return (
@@ -39,7 +42,7 @@ function ResultSection({
             to={browseUrl}
             className="text-sm text-amber hover:text-amber-light transition-colors whitespace-nowrap"
           >
-            View all {formatNumber(count)} &rarr;
+            {viewAllLabel} &rarr;
           </Link>
         )}
       </div>
@@ -51,6 +54,7 @@ function ResultSection({
 }
 
 export default function SearchPage() {
+  const { t } = useLanguage()
   const [params, setParams] = useSearchParams()
   const query = params.get('q') || ''
 
@@ -67,42 +71,45 @@ export default function SearchPage() {
   return (
     <div className="px-4 py-6">
       <div className="mx-auto max-w-5xl space-y-6">
-        <h1 className="font-display text-3xl text-amber">Search</h1>
+        <h1 className="font-display text-3xl text-amber">{t('search.title')}</h1>
 
         <div className="sticky top-16 z-10 bg-background/95 backdrop-blur-sm pb-3">
           <SearchBar
             value={query}
             onChange={handleQueryChange}
-            placeholder="Search artists, albums, directors, genres..."
+            placeholder={t('search.placeholder')}
             large
           />
         </div>
 
         {!hasQuery && (
           <p className="text-center text-muted py-12">
-            Search across all collections — CDs, DVDs, and more
+            {t('search.idleHint')}
           </p>
         )}
 
         {hasQuery && totalResults === 0 && (
           <div className="text-center py-16 space-y-5">
             <p className="font-display text-2xl text-amber">
-              Even Panqueca couldn't find what you're looking for!
+              {t('search.emptyTitle')}
             </p>
             <img
               src={`${import.meta.env.BASE_URL}panqueca-not-found.jpeg`}
-              alt="Panqueca the dog searching"
+              alt={t('search.emptyAlt')}
               className="mx-auto w-80 sm:w-96 rounded-xl shadow-lg"
             />
-            <p className="text-muted-dark text-sm">Try a different search term</p>
+            <p className="text-muted-dark text-sm">{t('search.emptyHint')}</p>
           </div>
         )}
 
         {hasQuery && totalResults > 0 && (
           <>
             <p className="text-xs text-muted">
-              Found {formatNumber(cdResults.length)} CDs and{' '}
-              {formatNumber(dvdResults.length)} DVDs matching &ldquo;{query}&rdquo;
+              {t('search.found', {
+                cdCount: formatNumber(cdResults.length),
+                dvdCount: formatNumber(dvdResults.length),
+                query,
+              })}
             </p>
 
             {cdResults.length > 0 && (
@@ -110,6 +117,7 @@ export default function SearchPage() {
                 title="CDs"
                 count={cdResults.length}
                 browseUrl={`/browse/cds?q=${encodeURIComponent(query)}`}
+                viewAllLabel={t('search.viewAll', { count: formatNumber(cdResults.length) })}
               >
                 {cdResults.slice(0, PREVIEW_COUNT).map(cd => (
                   <CdCard key={cd.id} cd={cd} />
@@ -122,6 +130,7 @@ export default function SearchPage() {
                 title="DVDs"
                 count={dvdResults.length}
                 browseUrl={`/browse/dvds?q=${encodeURIComponent(query)}`}
+                viewAllLabel={t('search.viewAll', { count: formatNumber(dvdResults.length) })}
               >
                 {dvdResults.slice(0, PREVIEW_COUNT).map(dvd => (
                   <DvdCard key={dvd.id} dvd={dvd} />

@@ -169,6 +169,18 @@ export const en: Translations = {
     description: 'This section is being curated. A collection of vinyl records will be added here soon.',
     stayTuned: 'Stay tuned.',
   },
+  search: {
+    title: 'Search',
+    placeholder: 'Search artists, albums, directors, genres...',
+    found: 'Found {{cdCount}} CDs and {{dvdCount}} DVDs matching "{{query}}"',
+    result: 'result',
+    results: 'results',
+    viewAll: 'View all {{count}}',
+    emptyTitle: 'Even Panqueca couldn\'t find what you\'re looking for!',
+    emptyHint: 'Try a different search term',
+    emptyAlt: 'Panqueca the dog searching',
+    idleHint: 'Search across all collections \u2014 CDs, DVDs, and more',
+  },
   common: {
     clearSearch: 'Clear search',
     more: '+{{count}} more',
