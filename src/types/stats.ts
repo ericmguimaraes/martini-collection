@@ -29,4 +29,20 @@ export interface CollectionStats {
     musicDvdCount: number
     sharedArtists: string[]
   }
+
+  deep: {
+    cdGenreCoOccurrence: { source: string; target: string; value: number }[]
+    dvdGenreCoOccurrence: { source: string; target: string; value: number }[]
+    labelGenreAffinity: Record<string, string | number>[]
+    artistTiers: { tier: string; count: number }[]
+    cdByDecade: { decade: string; count: number }[]
+    cdReleaseYearCoverage: number
+    cdTagByDecade: Record<string, string | number>[]
+    dvdGenreByDecade: Record<string, string | number>[]
+    dvdRatingByDecade: { decade: string; avgRating: number; count: number }[]
+    composerCrossovers: { name: string; cdCount: number; dvdTitles: string[] }[]
+    actorCrossovers: { name: string; cdCount: number; dvdTitles: string[] }[]
+    tagGenreBridge: { cdTag: string; dvdGenres: { genre: string; count: number }[] }[]
+    musicDvdBreakdown: { category: string; count: number }[]
+  }
 }
