@@ -295,11 +295,11 @@ Each phase ends with polish (responsive check, visual QA) and a deploy to GitHub
 - [x] 20. **Polish & deploy**: responsive check (375px-1440px), deploy
 
 ### Phase 5 — Browse Pages
-- [ ] 21. SearchBar, FilterBar, SortSelect, Badge, Pagination
-- [ ] 22. `useFilteredItems`, `useQueryParams` hooks
-- [ ] 23. CdCard (with `useItunesArt` hook), DvdCard (styled text)
-- [ ] 24. BrowsePage wired up for both CDs and DVDs
-- [ ] 25. **Polish & deploy**: test search across all fields, filters, sort, pagination, mobile, deploy
+- [x] 21. SearchBar, FilterBar, SortSelect, Badge, Pagination
+- [x] 22. `useFilteredItems`, `useQueryParams` hooks
+- [x] 23. CdCard (with `useItunesArt` hook), DvdCard (styled text)
+- [x] 24. BrowsePage wired up for both CDs and DVDs
+- [x] 25. **Polish & deploy**: test search across all fields, filters, sort, pagination, mobile, deploy
 
 ### Phase 6 — Insights Page
 - [ ] 26. All Nivo chart components with dark theme and amber palette
