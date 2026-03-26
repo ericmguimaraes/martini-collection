@@ -4,7 +4,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repository Is
 
-A personal media collection dataset — the "Martini Collection" — containing a CD collection (1687 albums) and a DVD collection (507 titles), exported from CLZ Music/Movies apps. This is a data analysis project, not a software application.
+A personal media collection — the "Martini Collection" — containing a CD collection (1687 albums) and a DVD collection (507 titles), exported from CLZ Music/Movies apps. The repository includes both the raw data and a React website to showcase the collection.
+
+## Current Project: Website
+
+We are building a **Vite + React + TypeScript** website to showcase the collection, hosted on **GitHub Pages**.
+
+**Full implementation plan with progress tracking**: [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md)
+
+When starting a new session:
+1. Read `docs/IMPLEMENTATION_PLAN.md` to see which phases/steps are completed (checkboxes)
+2. Pick up the next unchecked step and continue
+3. After completing a step, mark its checkbox as `- [x]` and commit
+
+**Key design decisions**:
+- Mobile-first, dark theme with vinyl record store aesthetic
+- CSV data processed at build time into JSON (`scripts/prepare-data.ts`)
+- iTunes Search API for CD cover art (free, no key)
+- Styled text cards for DVDs (no poster API)
+- Universal "search anything" bar across all fields
+- Nivo charts for insights page
+- HashRouter for GitHub Pages compatibility
+- Vinyl section planned for future (show "Coming Soon" in nav)
 
 ## Repository Structure
 
@@ -12,6 +33,9 @@ A personal media collection dataset — the "Martini Collection" — containing 
 - `resources/20260325_Acervo DVDs Martini.csv` — Full DVD collection export (CLZ Movies format)
 - `resources/collection_analysis.md` — Generated analysis with genre distributions, timelines, cross-genre patterns, and collector profile insights
 - `resources/image (1-4).png` — Screenshots from the CLZ Music/Movies apps
+- `docs/IMPLEMENTATION_PLAN.md` — Website implementation plan with progress checkboxes
+- `src/` — React website source (once scaffolded)
+- `scripts/` — Build-time data processing scripts
 
 ## Data Format Notes
 
@@ -21,6 +45,17 @@ A personal media collection dataset — the "Martini Collection" — containing 
 
 ## Working With the Data
 
-Use Python (`csv` module or `pandas`) for analysis. No special dependencies or virtual environments are required — the standard library's `csv` module is sufficient for most tasks.
+For data analysis, use Python (`csv` module or `pandas`). When regenerating `collection_analysis.md`, write a Python script to `/tmp/` and run it from the repo root.
 
-When regenerating `collection_analysis.md`, write a Python script to `/tmp/` and run it from the repo root, since shell quoting of inline Python can cause issues with special characters.
+For the website, data is processed by `scripts/prepare-data.ts` at build time — run `npm run prepare-data` to regenerate the JSON files in `src/data/`.
+
+## Website Development
+
+```bash
+npm install          # install dependencies
+npm run prepare-data # generate JSON from CSVs
+npm run dev          # start dev server
+npm run build        # production build to dist/
+```
+
+Deploy happens automatically via GitHub Actions on push to `main`.
