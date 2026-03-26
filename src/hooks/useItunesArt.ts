@@ -1,10 +1,23 @@
 import { useState, useEffect } from 'react'
 
-const cache = new Map<string, string | null>()
+interface CacheEntry {
+  artUrl: string | null
+  collectionId: number | null
+}
+
+const cache = new Map<string, CacheEntry>()
+
+function cacheKey(artist: string, album: string) {
+  return `${artist}|${album}`
+}
+
+export function getItunesCollectionId(artist: string, album: string): number | null {
+  return cache.get(cacheKey(artist, album))?.collectionId ?? null
+}
 
 export function useItunesArt(artist: string, album: string): string | null {
-  const key = `${artist}|${album}`
-  const [url, setUrl] = useState<string | null>(cache.get(key) ?? null)
+  const key = cacheKey(artist, album)
+  const [url, setUrl] = useState<string | null>(cache.get(key)?.artUrl ?? null)
   const [tried, setTried] = useState(cache.has(key))
 
   useEffect(() => {
@@ -20,13 +33,15 @@ export function useItunesArt(artist: string, album: string): string | null {
           { signal: controller.signal },
         )
         const data = await res.json()
+        const result = data.results?.[0]
         const artUrl: string | null =
-          data.results?.[0]?.artworkUrl100?.replace('100x100', '600x600') ?? null
-        cache.set(key, artUrl)
+          result?.artworkUrl100?.replace('100x100', '600x600') ?? null
+        const collectionId: number | null = result?.collectionId ?? null
+        cache.set(key, { artUrl, collectionId })
         setUrl(artUrl)
       } catch {
         if (!controller.signal.aborted) {
-          cache.set(key, null)
+          cache.set(key, { artUrl: null, collectionId: null })
         }
       }
       setTried(true)
