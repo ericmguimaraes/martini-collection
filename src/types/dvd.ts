@@ -10,6 +10,7 @@ export interface DvdItem {
   releaseYear: number | null
   imdbRating: number | null
   imdbUrl: string
+  imdbId?: string
   country: string
   color: string
   language: string
@@ -18,5 +19,7 @@ export interface DvdItem {
   studios: string
   tag: string
   addedDate: string
+  posterUrl?: string
+  posterSource?: string
   _search: string
 }

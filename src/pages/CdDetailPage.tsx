@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
 import type { CdItem } from '@/types/cd'
-import { useItunesArt } from '@/hooks/useItunesArt'
+import { useCdArtwork } from '@/hooks/useArtwork'
 import { getTagColor, getGenreColor } from '@/lib/colors'
 import { spotifySearchUrl, youtubeSearchUrl } from '@/lib/links'
 import Badge from '@/components/shared/Badge'
@@ -18,7 +18,7 @@ export default function CdDetailPage() {
 }
 
 function CdDetail({ cd }: { cd: CdItem }) {
-  const artUrl = useItunesArt(cd.artist, cd.title)
+  const artUrl = useCdArtwork(cd)
 
   return (
     <div className="px-4 py-8 pb-24 sm:pb-8">

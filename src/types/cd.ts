@@ -14,5 +14,7 @@ export interface CdItem {
   releaseYear: number | null
   addedDate: string
   catNo: string
+  artworkUrl?: string
+  artworkSource?: string
   _search: string
 }

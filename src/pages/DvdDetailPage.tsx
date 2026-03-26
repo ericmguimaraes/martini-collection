@@ -1,5 +1,6 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
 import type { DvdItem } from '@/types/dvd'
+import { useDvdPoster } from '@/hooks/useArtwork'
 import { getGenreColor } from '@/lib/colors'
 import { googleFilmUrl } from '@/lib/links'
 import { formatRuntime } from '@/lib/format'
@@ -13,6 +14,12 @@ export default function DvdDetailPage() {
   const dvd = allDvds.find(d => d.id === id)
 
   if (!dvd) return <Navigate to="/browse/dvds" replace />
+
+  return <DvdDetail dvd={dvd} />
+}
+
+function DvdDetail({ dvd }: { dvd: DvdItem }) {
+  const posterUrl = useDvdPoster(dvd)
 
   return (
     <div className="px-4 py-8 pb-24 sm:pb-8">
@@ -28,38 +35,59 @@ export default function DvdDetailPage() {
           Back to DVDs
         </Link>
 
-        {/* Header */}
-        <div className="rounded-xl border border-surface-light bg-surface overflow-hidden">
-          {/* Top banner with rating + title */}
-          <div className="relative px-6 pt-8 pb-6 bg-gradient-to-br from-copper/10 to-amber/5">
-            <div className="flex flex-col sm:flex-row items-start gap-5">
-              {/* IMDb rating circle */}
-              {dvd.imdbRating && (
-                <div className="shrink-0 flex flex-col items-center gap-1">
-                  <div className="h-20 w-20 rounded-full border-2 border-amber/50 bg-amber/10 flex items-center justify-center">
-                    <span className="font-mono text-2xl text-amber font-bold">{dvd.imdbRating}</span>
+        {/* Header with optional poster */}
+        <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 mb-6">
+          {/* Poster */}
+          <div className="shrink-0 mx-auto sm:mx-0">
+            <div className="w-48 sm:w-56 aspect-[2/3] rounded-xl overflow-hidden border border-surface-light shadow-xl shadow-black/30">
+              {posterUrl ? (
+                <img
+                  src={posterUrl}
+                  alt={dvd.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-surface-hover relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-copper/10 to-amber/5" />
+                  <div className="relative text-center space-y-3 p-6">
+                    {dvd.imdbRating && (
+                      <div className="inline-flex items-center justify-center h-16 w-16 rounded-full border-2 border-amber/50 bg-amber/10">
+                        <span className="font-mono text-xl text-amber font-bold">{dvd.imdbRating}</span>
+                      </div>
+                    )}
+                    <p className="font-display text-lg text-foreground leading-tight">{dvd.title}</p>
+                    {dvd.releaseYear && <p className="font-mono text-xs text-muted-dark">{dvd.releaseYear}</p>}
                   </div>
-                  <span className="text-[10px] text-muted-dark uppercase tracking-wider">IMDb</span>
                 </div>
               )}
-
-              <div className="space-y-2 min-w-0">
-                <h1 className="font-display text-2xl sm:text-3xl text-foreground leading-tight">{dvd.title}</h1>
-                {dvd.originalTitle && dvd.originalTitle !== dvd.title && (
-                  <p className="text-sm text-muted italic">{dvd.originalTitle}</p>
-                )}
-                <div className="flex items-center gap-3 text-sm text-muted">
-                  {dvd.releaseYear && <span className="font-mono">{dvd.releaseYear}</span>}
-                  {dvd.runtime && <span className="font-mono">{formatRuntime(dvd.runtime)}</span>}
-                  {dvd.color && <span>{dvd.color}</span>}
-                  {dvd.language && <span>{dvd.language}</span>}
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* Body */}
-          <div className="px-6 py-6 space-y-6">
+          {/* Title + meta */}
+          <div className="flex-1 space-y-3 min-w-0">
+            <div className="space-y-1">
+              <h1 className="font-display text-2xl sm:text-3xl text-foreground leading-tight">{dvd.title}</h1>
+              {dvd.originalTitle && dvd.originalTitle !== dvd.title && (
+                <p className="text-sm text-muted italic">{dvd.originalTitle}</p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 text-sm text-muted">
+              {dvd.releaseYear && <span className="font-mono">{dvd.releaseYear}</span>}
+              {dvd.runtime && <span className="font-mono">{formatRuntime(dvd.runtime)}</span>}
+              {dvd.color && <span>{dvd.color}</span>}
+              {dvd.language && <span>{dvd.language}</span>}
+            </div>
+
+            {dvd.imdbRating && (
+              <div className="flex items-center gap-2">
+                <div className="h-10 w-10 rounded-full border border-amber/40 bg-amber/10 flex items-center justify-center">
+                  <span className="font-mono text-sm text-amber font-bold">{dvd.imdbRating}</span>
+                </div>
+                <span className="text-xs text-muted-dark uppercase tracking-wider">IMDb</span>
+              </div>
+            )}
+
             {/* Genre badges */}
             {dvd.genres.length > 0 && (
               <div className="flex items-center gap-2 flex-wrap">
@@ -69,6 +97,37 @@ export default function DvdDetailPage() {
               </div>
             )}
 
+            {/* External links */}
+            <div className="flex items-center gap-3 pt-1">
+              {dvd.imdbUrl && (
+                <a
+                  href={dvd.imdbUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium bg-[#F5C518]/15 text-[#F5C518] hover:bg-[#F5C518]/25 transition-colors"
+                >
+                  <ImdbIcon />
+                  IMDb
+                </a>
+              )}
+              <a
+                href={googleFilmUrl(dvd.title, dvd.releaseYear)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium bg-surface-hover text-muted hover:text-foreground hover:bg-surface-light transition-colors"
+              >
+                <SearchIcon />
+                Google
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Details card */}
+        <div className="rounded-xl border border-surface-light bg-surface overflow-hidden">
+
+          {/* Body */}
+          <div className="px-6 py-6 space-y-6">
             {/* Director(s) */}
             {dvd.directors.length > 0 && (
               <div>
@@ -110,29 +169,6 @@ export default function DvdDetailPage() {
               {dvd.tag && <MetaItem label="Collection" value={dvd.tag} />}
             </dl>
 
-            {/* External links */}
-            <div className="flex items-center gap-3 pt-2">
-              {dvd.imdbUrl && (
-                <a
-                  href={dvd.imdbUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium bg-[#F5C518]/15 text-[#F5C518] hover:bg-[#F5C518]/25 transition-colors"
-                >
-                  <ImdbIcon />
-                  IMDb
-                </a>
-              )}
-              <a
-                href={googleFilmUrl(dvd.title, dvd.releaseYear)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium bg-surface-hover text-muted hover:text-foreground hover:bg-surface-light transition-colors"
-              >
-                <SearchIcon />
-                Google
-              </a>
-            </div>
           </div>
         </div>
       </div>

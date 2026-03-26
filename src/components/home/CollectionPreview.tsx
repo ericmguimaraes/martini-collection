@@ -4,7 +4,7 @@ import type { CdItem } from '@/types/cd'
 import type { DvdItem } from '@/types/dvd'
 import { pickLatestAdditions } from '@/lib/featured'
 import { getTagColor, getGenreColor } from '@/lib/colors'
-import { useItunesArt } from '@/hooks/useItunesArt'
+import { useCdArtwork, useDvdPoster } from '@/hooks/useArtwork'
 
 interface CollectionPreviewProps {
   cds: CdItem[]
@@ -16,7 +16,7 @@ function isCd(item: CdItem | DvdItem): item is CdItem {
 }
 
 function CdPreviewCard({ item }: { item: CdItem }) {
-  const artUrl = useItunesArt(item.artist, item.title)
+  const artUrl = useCdArtwork(item)
 
   return (
     <Link
@@ -54,22 +54,35 @@ function CdPreviewCard({ item }: { item: CdItem }) {
 }
 
 function DvdPreviewCard({ item }: { item: DvdItem }) {
+  const posterUrl = useDvdPoster(item)
+
   return (
     <Link
       to={`/dvd/${item.id}`}
       className="group flex-none w-36 sm:w-44 rounded-lg border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30"
     >
-      <div className="aspect-square bg-surface-hover flex flex-col items-center justify-center p-3 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-copper/5 to-transparent" />
-        <div className="relative text-center space-y-1">
-          {item.imdbRating && (
-            <span className="inline-block font-mono text-xs text-amber bg-amber/10 rounded-full px-1.5 py-0.5">
-              {item.imdbRating}
-            </span>
-          )}
-          <p className="font-display text-sm text-foreground leading-tight line-clamp-2">{item.title}</p>
-          {item.releaseYear && <p className="font-mono text-[10px] text-muted-dark">{item.releaseYear}</p>}
-        </div>
+      <div className="aspect-square bg-surface-hover flex flex-col items-center justify-center relative overflow-hidden">
+        {posterUrl ? (
+          <img
+            src={posterUrl}
+            alt={item.title}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          />
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-copper/5 to-transparent" />
+            <div className="relative text-center space-y-1 p-3">
+              {item.imdbRating && (
+                <span className="inline-block font-mono text-xs text-amber bg-amber/10 rounded-full px-1.5 py-0.5">
+                  {item.imdbRating}
+                </span>
+              )}
+              <p className="font-display text-sm text-foreground leading-tight line-clamp-2">{item.title}</p>
+              {item.releaseYear && <p className="font-mono text-[10px] text-muted-dark">{item.releaseYear}</p>}
+            </div>
+          </>
+        )}
       </div>
       <div className="p-2 space-y-1">
         <p className="text-xs text-foreground truncate group-hover:text-amber transition-colors">{item.directors.join(', ')}</p>

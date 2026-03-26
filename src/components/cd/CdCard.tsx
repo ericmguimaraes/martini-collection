@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 import type { CdItem } from '@/types/cd'
-import { useItunesArt } from '@/hooks/useItunesArt'
+import { useCdArtwork } from '@/hooks/useArtwork'
 import { getTagColor } from '@/lib/colors'
 
 export default function CdCard({ cd }: { cd: CdItem }) {
-  const artUrl = useItunesArt(cd.artist, cd.title)
+  const artUrl = useCdArtwork(cd)
 
   return (
     <Link

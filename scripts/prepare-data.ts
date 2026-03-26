@@ -140,6 +140,7 @@ interface DvdRow {
   releaseYear: number | null
   imdbRating: number | null
   imdbUrl: string
+  imdbId: string
   country: string
   color: string
   language: string
@@ -185,6 +186,7 @@ const dvds: DvdRow[] = dvdRows.map((row, i) => {
     releaseYear: parseIntOrNull(row['Release Year']),
     imdbRating: parseFloatOrNull(row['IMDb Rating']),
     imdbUrl: row['IMDb Url'] || '',
+    imdbId: (row['IMDb Url'] || '').match(/tt\d+/)?.[0] || '',
     country,
     color: row['Color'] || '',
     language: row['Language'] || '',
