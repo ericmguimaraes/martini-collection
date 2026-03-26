@@ -280,11 +280,11 @@ Each phase ends with polish (responsive check, visual QA) and a deploy to GitHub
 - [x] 9. **Polish & deploy**: verify JSON output, build works, deploy
 
 ### Phase 3 — Layout & Navigation
-- [ ] 10. AppShell + BottomNav (mobile) + Navbar (desktop)
-- [ ] 11. Routes: `/`, `/insights`, `/browse/cds`, `/browse/dvds`, `/cd/:id`, `/dvd/:id`, `/vinyl` (coming soon)
-- [ ] 12. Dark theme styling
-- [ ] 13. Vinyl "Coming Soon" teaser page
-- [ ] 14. **Polish & deploy**: test nav on mobile/desktop, responsive check, deploy
+- [x] 10. AppShell + BottomNav (mobile) + Navbar (desktop)
+- [x] 11. Routes: `/`, `/insights`, `/browse/cds`, `/browse/dvds`, `/cd/:id`, `/dvd/:id`, `/vinyl` (coming soon)
+- [x] 12. Dark theme styling
+- [x] 13. Vinyl "Coming Soon" teaser page
+- [x] 14. **Polish & deploy**: test nav on mobile/desktop, responsive check, deploy
 
 ### Phase 4 — Home Page
 - [ ] 15. HeroSection with search bar
