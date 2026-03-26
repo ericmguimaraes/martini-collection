@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '@/i18n'
 
 interface SearchBarProps {
   placeholder?: string
@@ -11,17 +12,19 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({
-  placeholder = 'Search artists, albums, directors, genres...',
+  placeholder,
   large = false,
   defaultValue = '',
   value,
   onChange,
   onSearch,
 }: SearchBarProps) {
+  const { t } = useLanguage()
   const controlled = value !== undefined
   const [internal, setInternal] = useState(defaultValue)
   const query = controlled ? value : internal
   const navigate = useNavigate()
+  const resolvedPlaceholder = placeholder ?? t('home.searchPlaceholder')
 
   useEffect(() => {
     if (!controlled) setInternal(defaultValue)
@@ -62,7 +65,7 @@ export default function SearchBar({
           type="text"
           value={query}
           onChange={e => handleChange(e.target.value)}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           className={`w-full rounded-lg border border-surface-light bg-surface pl-10 pr-4 text-foreground placeholder:text-muted-dark focus:border-amber/50 focus:outline-none focus:ring-1 focus:ring-amber/30 transition-colors ${
             large ? 'py-4 text-lg' : 'py-2.5 text-sm'
           }`}
@@ -71,7 +74,7 @@ export default function SearchBar({
           <button
             type="button"
             onClick={() => handleChange('')}
-            aria-label="Clear search"
+            aria-label={t('common.clearSearch')}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

@@ -1,4 +1,8 @@
+import { useLanguage } from '@/i18n'
+
 export default function VinylPage() {
+  const { t } = useLanguage()
+
   return (
     <div className="px-4 py-12">
       <div className="mx-auto max-w-2xl flex flex-col items-center gap-6 text-center">
@@ -17,14 +21,14 @@ export default function VinylPage() {
         </div>
 
         <div className="space-y-3">
-          <h1 className="font-display text-3xl text-amber">Vinyl Collection</h1>
+          <h1 className="font-display text-3xl text-amber">{t('vinyl.title')}</h1>
           <span className="inline-block rounded-full bg-amber/20 px-3 py-1 font-mono text-sm text-amber">
-            Coming Soon
+            {t('vinyl.comingSoon')}
           </span>
           <p className="text-muted text-lg max-w-md">
-            This section is being curated. A collection of vinyl records will be added here soon.
+            {t('vinyl.description')}
           </p>
-          <p className="text-muted-dark text-sm">Stay tuned.</p>
+          <p className="text-muted-dark text-sm">{t('vinyl.stayTuned')}</p>
         </div>
       </div>
     </div>

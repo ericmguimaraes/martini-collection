@@ -1,11 +1,5 @@
 import { NavLink } from 'react-router-dom'
-
-const tabs = [
-  { to: '/', label: 'Home', icon: HomeIcon },
-  { to: '/browse/cds', label: 'CDs', icon: DiscIcon },
-  { to: '/browse/dvds', label: 'DVDs', icon: FilmIcon },
-  { to: '/insights', label: 'Insights', icon: ChartIcon },
-]
+import { useLanguage } from '@/i18n'
 
 function HomeIcon({ className }: { className?: string }) {
   return (
@@ -50,7 +44,26 @@ function ChartIcon({ className }: { className?: string }) {
   )
 }
 
+function GlobeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  )
+}
+
 export default function BottomNav() {
+  const { language, setLanguage, t } = useLanguage()
+
+  const tabs = [
+    { to: '/', label: t('nav.home'), icon: HomeIcon },
+    { to: '/browse/cds', label: t('nav.cds'), icon: DiscIcon },
+    { to: '/browse/dvds', label: t('nav.dvds'), icon: FilmIcon },
+    { to: '/insights', label: t('nav.insights'), icon: ChartIcon },
+  ]
+
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 border-t border-surface-light bg-background/95 backdrop-blur-sm safe-area-pb">
       <div className="flex items-center justify-around py-1">
@@ -69,6 +82,14 @@ export default function BottomNav() {
             <span className="text-[10px] font-medium">{tab.label}</span>
           </NavLink>
         ))}
+        <button
+          onClick={() => setLanguage(language === 'en' ? 'pt' : 'en')}
+          className="flex flex-col items-center gap-0.5 px-3 py-2 min-w-[64px] text-muted transition-colors"
+          aria-label={language === 'en' ? 'Mudar para Português' : 'Switch to English'}
+        >
+          <GlobeIcon className="h-5 w-5" />
+          <span className="text-[10px] font-bold">{language.toUpperCase()}</span>
+        </button>
       </div>
     </nav>
   )

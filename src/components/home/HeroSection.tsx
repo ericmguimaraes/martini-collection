@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import SearchBar from '@/components/shared/SearchBar'
 import { formatNumber } from '@/lib/format'
+import { useLanguage } from '@/i18n'
 
 interface HeroSectionProps {
   totalCds: number
@@ -34,6 +35,8 @@ function AnimatedCounter({ target, label }: { target: number; label: string }) {
 }
 
 export default function HeroSection({ totalCds, totalDvds }: HeroSectionProps) {
+  const { t } = useLanguage()
+
   return (
     <section className="relative flex flex-col items-center justify-center gap-8 px-4 pt-20 pb-10 sm:pt-28 sm:pb-14 text-center">
       {/* Layered ambient glow */}
@@ -42,7 +45,7 @@ export default function HeroSection({ totalCds, totalDvds }: HeroSectionProps) {
 
       <div className="space-y-4">
         <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl text-amber leading-tight">
-          The Martini Collection
+          {t('nav.siteTitle')}
         </h1>
 
         {/* Decorative accent line */}
@@ -51,7 +54,7 @@ export default function HeroSection({ totalCds, totalDvds }: HeroSectionProps) {
         </div>
 
         <p className="text-lg sm:text-xl text-muted max-w-lg mx-auto">
-          A curated collection of music and cinema
+          {t('home.tagline')}
         </p>
       </div>
 
@@ -64,7 +67,7 @@ export default function HeroSection({ totalCds, totalDvds }: HeroSectionProps) {
 
       {/* Search bar */}
       <div className="w-full max-w-xl">
-        <SearchBar large />
+        <SearchBar large placeholder={t('home.searchPlaceholder')} />
       </div>
     </section>
   )

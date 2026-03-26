@@ -1,3 +1,5 @@
+import { useLanguage } from '@/i18n'
+
 interface PaginationProps {
   currentPage: number
   totalPages: number
@@ -5,6 +7,8 @@ interface PaginationProps {
 }
 
 export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+  const { t } = useLanguage()
+
   if (totalPages <= 1) return null
 
   const pages: (number | '...')[] = []
@@ -21,14 +25,14 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
   }
 
   return (
-    <nav aria-label="Pagination" className="flex items-center justify-center gap-1">
+    <nav aria-label={t('pagination.prev')} className="flex items-center justify-center gap-1">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        aria-label="Previous page"
+        aria-label={t('pagination.previousPage')}
         className="rounded-lg px-2 sm:px-3 py-2 text-sm text-muted hover:text-foreground hover:bg-surface-light disabled:opacity-30 disabled:pointer-events-none transition-colors"
       >
-        <span className="hidden sm:inline">Prev</span>
+        <span className="hidden sm:inline">{t('pagination.prev')}</span>
         <svg className="h-4 w-4 sm:hidden" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
@@ -43,7 +47,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
           <button
             key={p}
             onClick={() => onPageChange(p)}
-            aria-label={`Page ${p}`}
+            aria-label={t('pagination.page', { number: p })}
             aria-current={p === currentPage ? 'page' : undefined}
             className={`min-w-[32px] sm:min-w-[36px] rounded-lg px-1.5 sm:px-2 py-2 text-sm font-medium transition-colors ${
               p === currentPage
@@ -59,10 +63,10 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        aria-label="Next page"
+        aria-label={t('pagination.nextPage')}
         className="rounded-lg px-2 sm:px-3 py-2 text-sm text-muted hover:text-foreground hover:bg-surface-light disabled:opacity-30 disabled:pointer-events-none transition-colors"
       >
-        <span className="hidden sm:inline">Next</span>
+        <span className="hidden sm:inline">{t('pagination.next')}</span>
         <svg className="h-4 w-4 sm:hidden" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>

@@ -3,6 +3,7 @@ import type { DvdItem } from '@/types/dvd'
 import { getGenreColor } from '@/lib/colors'
 import { googleFilmUrl } from '@/lib/links'
 import { formatRuntime } from '@/lib/format'
+import { useLanguage } from '@/i18n'
 import Badge from '@/components/shared/Badge'
 import dvds from '@/data/dvds.json'
 
@@ -13,6 +14,12 @@ export default function DvdDetailPage() {
   const dvd = allDvds.find(d => d.id === id)
 
   if (!dvd) return <Navigate to="/browse/dvds" replace />
+
+  return <DvdDetail dvd={dvd} />
+}
+
+function DvdDetail({ dvd }: { dvd: DvdItem }) {
+  const { t } = useLanguage()
 
   return (
     <div className="px-4 py-8 pb-24 sm:pb-8">
@@ -25,7 +32,7 @@ export default function DvdDetailPage() {
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
-          Back to DVDs
+          {t('dvd.backToDvds')}
         </Link>
 
         {/* Header */}
@@ -39,7 +46,7 @@ export default function DvdDetailPage() {
                   <div className="h-20 w-20 rounded-full border-2 border-amber/50 bg-amber/10 flex items-center justify-center">
                     <span className="font-mono text-2xl text-amber font-bold">{dvd.imdbRating}</span>
                   </div>
-                  <span className="text-[10px] text-muted-dark uppercase tracking-wider">IMDb</span>
+                  <span className="text-[10px] text-muted-dark uppercase tracking-wider">{t('dvd.imdb')}</span>
                 </div>
               )}
 
@@ -73,7 +80,7 @@ export default function DvdDetailPage() {
             {dvd.directors.length > 0 && (
               <div>
                 <h2 className="text-xs text-muted-dark uppercase tracking-wider mb-1">
-                  {dvd.directors.length > 1 ? 'Directors' : 'Director'}
+                  {dvd.directors.length > 1 ? t('dvd.directors') : t('dvd.director')}
                 </h2>
                 <p className="text-foreground font-medium">{dvd.directors.join(', ')}</p>
               </div>
@@ -82,7 +89,7 @@ export default function DvdDetailPage() {
             {/* Actors */}
             {dvd.actors.length > 0 && (
               <div>
-                <h2 className="text-xs text-muted-dark uppercase tracking-wider mb-1">Cast</h2>
+                <h2 className="text-xs text-muted-dark uppercase tracking-wider mb-1">{t('dvd.cast')}</h2>
                 <p className="text-foreground text-sm leading-relaxed">{dvd.actors.join(', ')}</p>
               </div>
             )}
@@ -90,7 +97,7 @@ export default function DvdDetailPage() {
             {/* Musicians (for music DVDs) */}
             {dvd.musicians.length > 0 && (
               <div>
-                <h2 className="text-xs text-muted-dark uppercase tracking-wider mb-1">Musicians</h2>
+                <h2 className="text-xs text-muted-dark uppercase tracking-wider mb-1">{t('dvd.musicians')}</h2>
                 <p className="text-foreground text-sm leading-relaxed">{dvd.musicians.join(', ')}</p>
               </div>
             )}
@@ -98,16 +105,16 @@ export default function DvdDetailPage() {
             {/* Plot */}
             {dvd.plot && (
               <div>
-                <h2 className="text-xs text-muted-dark uppercase tracking-wider mb-2">Synopsis</h2>
+                <h2 className="text-xs text-muted-dark uppercase tracking-wider mb-2">{t('dvd.synopsis')}</h2>
                 <p className="text-muted text-sm leading-relaxed">{dvd.plot}</p>
               </div>
             )}
 
             {/* Metadata grid */}
             <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm">
-              {dvd.country && <MetaItem label="Country" value={dvd.country} />}
-              {dvd.studios && <MetaItem label="Studio" value={dvd.studios} />}
-              {dvd.tag && <MetaItem label="Collection" value={dvd.tag} />}
+              {dvd.country && <MetaItem label={t('dvd.country')} value={dvd.country} />}
+              {dvd.studios && <MetaItem label={t('dvd.studio')} value={dvd.studios} />}
+              {dvd.tag && <MetaItem label={t('dvd.collection')} value={dvd.tag} />}
             </dl>
 
             {/* External links */}
