@@ -287,12 +287,12 @@ Each phase ends with polish (responsive check, visual QA) and a deploy to GitHub
 - [x] 14. **Polish & deploy**: test nav on mobile/desktop, responsive check, deploy
 
 ### Phase 4 — Home Page
-- [ ] 15. HeroSection with search bar
-- [ ] 16. NavigationCards (first-class, includes Vinyl "Coming Soon")
-- [ ] 17. SpotlightStats
-- [ ] 18. FeaturedPicks (random quality items matching collector style)
-- [ ] 19. CollectionPreview strip
-- [ ] 20. **Polish & deploy**: responsive check (375px-1440px), deploy
+- [x] 15. HeroSection with search bar
+- [x] 16. NavigationCards (first-class, includes Vinyl "Coming Soon")
+- [x] 17. SpotlightStats
+- [x] 18. FeaturedPicks (random quality items matching collector style)
+- [x] 19. CollectionPreview strip
+- [x] 20. **Polish & deploy**: responsive check (375px-1440px), deploy
 
 ### Phase 5 — Browse Pages
 - [ ] 21. SearchBar, FilterBar, SortSelect, Badge, Pagination
