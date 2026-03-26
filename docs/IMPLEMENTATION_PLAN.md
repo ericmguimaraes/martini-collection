@@ -274,10 +274,10 @@ Each phase ends with polish (responsive check, visual QA) and a deploy to GitHub
 - [x] 5. **Polish & deploy**: verify dev + build, push, confirm Pages works with placeholder
 
 ### Phase 2 — Data Pipeline
-- [ ] 6. TypeScript interfaces (`src/types/`)
-- [ ] 7. `scripts/prepare-data.ts` — CSV parsing, field extraction, `_search` index, stats computation
-- [ ] 8. `src/lib/links.ts` + `src/lib/featured.ts`
-- [ ] 9. **Polish & deploy**: verify JSON output, build works, deploy
+- [x] 6. TypeScript interfaces (`src/types/`)
+- [x] 7. `scripts/prepare-data.ts` — CSV parsing, field extraction, `_search` index, stats computation
+- [x] 8. `src/lib/links.ts` + `src/lib/featured.ts`
+- [x] 9. **Polish & deploy**: verify JSON output, build works, deploy
 
 ### Phase 3 — Layout & Navigation
 - [ ] 10. AppShell + BottomNav (mobile) + Navbar (desktop)
