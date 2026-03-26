@@ -302,10 +302,10 @@ Each phase ends with polish (responsive check, visual QA) and a deploy to GitHub
 - [x] 25. **Polish & deploy**: test search across all fields, filters, sort, pagination, mobile, deploy
 
 ### Phase 6 — Insights Page
-- [ ] 26. All Nivo chart components with dark theme and amber palette
-- [ ] 27. InsightsPage — all sections (overview, CDs, DVDs, cross-patterns, collector profile)
-- [ ] 28. Scroll animations for chart reveals
-- [ ] 29. **Polish & deploy**: verify charts match collection_analysis.md, responsive charts, deploy
+- [x] 26. All Nivo chart components with dark theme and amber palette
+- [x] 27. InsightsPage — all sections (overview, CDs, DVDs, cross-patterns, collector profile)
+- [x] 28. Scroll animations for chart reveals
+- [x] 29. **Polish & deploy**: verify charts match collection_analysis.md, responsive charts, deploy
 
 ### Phase 7 — Detail Pages
 - [ ] 30. CdDetailPage + iTunes art + Spotify/YouTube buttons
