@@ -303,6 +303,164 @@ const dvdArtistSet = new Set([
 ])
 const sharedArtists = [...cdArtistSet].filter(a => dvdArtistSet.has(a)).sort()
 
+// ── Deep Stats ──────────────────────────────────────────────────────────
+
+function computeCoOccurrence(items: { genres: string[] }[], limit: number) {
+  const pairs = new Map<string, number>()
+  for (const item of items) {
+    const g = item.genres
+    if (g.length < 2) continue
+    for (let i = 0; i < g.length; i++) {
+      for (let j = i + 1; j < g.length; j++) {
+        const [a, b] = [g[i], g[j]].sort()
+        const key = `${a}|||${b}`
+        pairs.set(key, (pairs.get(key) || 0) + 1)
+      }
+    }
+  }
+  return [...pairs.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([key, value]) => {
+      const [source, target] = key.split('|||')
+      return { source, target, value }
+    })
+}
+
+const cdGenreCoOccurrence = computeCoOccurrence(cds, 30)
+const dvdGenreCoOccurrence = computeCoOccurrence(dvds, 30)
+
+const topLabelNames = topN(cdLabelMap, 15).map(l => l.name)
+const labelGenreAffinity = topLabelNames.map(label => {
+  const labelCds = cds.filter(c => c.label === label)
+  const tagCounts = countMap(labelCds.map(c => c.tag).filter(Boolean))
+  const total = labelCds.length
+  const row: Record<string, string | number> = { label, total }
+  for (const [tag, count] of tagCounts) {
+    row[tag] = Math.round((count / total) * 100)
+  }
+  return row
+})
+
+const tierBuckets = [
+  { tier: '1 album', min: 1, max: 1 },
+  { tier: '2-3 albums', min: 2, max: 3 },
+  { tier: '4-6 albums', min: 4, max: 6 },
+  { tier: '7-10 albums', min: 7, max: 10 },
+  { tier: '11+ albums', min: 11, max: Infinity },
+]
+const artistTiers = tierBuckets.map(({ tier, min, max }) => ({
+  tier,
+  count: [...cdArtistMap.values()].filter(v => v >= min && v <= max).length,
+}))
+
+const cdDecadeMap = new Map<string, number>()
+let cdsWithYear = 0
+for (const cd of cds) {
+  if (cd.releaseYear) {
+    cdsWithYear++
+    const decade = `${Math.floor(cd.releaseYear / 10) * 10}s`
+    cdDecadeMap.set(decade, (cdDecadeMap.get(decade) || 0) + 1)
+  }
+}
+const cdByDecade = [...cdDecadeMap.entries()]
+  .sort((a, b) => a[0].localeCompare(b[0]))
+  .map(([decade, count]) => ({ decade, count }))
+const cdReleaseYearCoverage = Math.round((cdsWithYear / cds.length) * 100)
+
+const topTags = ['Jazz', 'Música Brasileira', 'Rock', 'Classical', 'Pop', 'Blues', 'Latin']
+const cdTagByDecade: Record<string, string | number>[] = []
+for (const [decade] of [...cdDecadeMap.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+  const decadeCds = cds.filter(c => c.releaseYear && `${Math.floor(c.releaseYear / 10) * 10}s` === decade)
+  const row: Record<string, string | number> = { decade }
+  for (const tag of topTags) { row[tag] = decadeCds.filter(c => c.tag === tag).length }
+  cdTagByDecade.push(row)
+}
+
+const topDvdGenres = ['Drama', 'Romance', 'Comedy', 'Crime', 'Thriller', 'Music', 'Film-Noir']
+const dvdGenreByDecade: Record<string, string | number>[] = []
+for (const [decade] of [...dvdDecadeMap.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+  const decadeDvds = dvds.filter(d => d.releaseYear && `${Math.floor(d.releaseYear / 10) * 10}s` === decade)
+  const row: Record<string, string | number> = { decade }
+  for (const genre of topDvdGenres) { row[genre] = decadeDvds.filter(d => d.genres.includes(genre)).length }
+  dvdGenreByDecade.push(row)
+}
+
+const dvdRatingByDecade: { decade: string; avgRating: number; count: number }[] = []
+for (const [decade] of [...dvdDecadeMap.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+  const decadeRated = dvds.filter(d =>
+    d.releaseYear && `${Math.floor(d.releaseYear / 10) * 10}s` === decade && d.imdbRating !== null
+  )
+  if (decadeRated.length > 0) {
+    const avg = decadeRated.reduce((s, d) => s + d.imdbRating!, 0) / decadeRated.length
+    dvdRatingByDecade.push({ decade, avgRating: Math.round(avg * 10) / 10, count: decadeRated.length })
+  }
+}
+
+const composerCrossovers: { name: string; cdCount: number; dvdTitles: string[] }[] = []
+const actorCrossovers: { name: string; cdCount: number; dvdTitles: string[] }[] = []
+for (const artist of cdArtistSet) {
+  if (!artist) continue
+  const cdCount = cdArtistMap.get(cds.find(c => c.artist.toLowerCase() === artist)?.artist || '') || 0
+  const musicianDvds = dvds.filter(d => d.musicians.some(m => m.toLowerCase() === artist))
+  if (musicianDvds.length > 0) {
+    composerCrossovers.push({
+      name: musicianDvds[0].musicians.find(m => m.toLowerCase() === artist) || artist,
+      cdCount, dvdTitles: musicianDvds.map(d => d.title),
+    })
+  }
+  const actorDvds = dvds.filter(d => d.actors.some(a => a.toLowerCase() === artist))
+  if (actorDvds.length > 0) {
+    actorCrossovers.push({
+      name: actorDvds[0].actors.find(a => a.toLowerCase() === artist) || artist,
+      cdCount, dvdTitles: actorDvds.map(d => d.title),
+    })
+  }
+}
+composerCrossovers.sort((a, b) => b.dvdTitles.length - a.dvdTitles.length || b.cdCount - a.cdCount)
+actorCrossovers.sort((a, b) => b.dvdTitles.length - a.dvdTitles.length || b.cdCount - a.cdCount)
+
+const tagGenreBridge: { cdTag: string; dvdGenres: { genre: string; count: number }[] }[] = []
+const tagGenreTemp = new Map<string, Map<string, number>>()
+for (const artist of sharedArtists) {
+  const cd = cds.find(c => c.artist.toLowerCase() === artist)
+  if (!cd || !cd.tag) continue
+  const artistDvds = dvds.filter(d =>
+    d.directors.some(n => n.toLowerCase() === artist) ||
+    d.actors.some(n => n.toLowerCase() === artist) ||
+    d.musicians.some(n => n.toLowerCase() === artist)
+  )
+  if (!tagGenreTemp.has(cd.tag)) tagGenreTemp.set(cd.tag, new Map())
+  const genreMap = tagGenreTemp.get(cd.tag)!
+  for (const dvd of artistDvds) { for (const genre of dvd.genres) { genreMap.set(genre, (genreMap.get(genre) || 0) + 1) } }
+}
+for (const [cdTag, genreMap] of tagGenreTemp) {
+  tagGenreBridge.push({
+    cdTag,
+    dvdGenres: [...genreMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([genre, count]) => ({ genre, count })),
+  })
+}
+tagGenreBridge.sort((a, b) => b.dvdGenres.reduce((s, g) => s + g.count, 0) - a.dvdGenres.reduce((s, g) => s + g.count, 0))
+
+const musicDvdCategories = new Map<string, number>()
+for (const dvd of musicDvds) {
+  let category = 'Other'
+  const genreLower = dvd.genres.map(g => g.toLowerCase()).join(' ')
+  const plotLower = (dvd.plot || '').toLowerCase()
+  const titleLower = dvd.title.toLowerCase()
+  if (genreLower.includes('documentary') || plotLower.includes('documentary')) category = 'Documentary'
+  else if (genreLower.includes('musical') || plotLower.includes('musical')) category = 'Musical'
+  else if (plotLower.includes('concert') || plotLower.includes('live') || titleLower.includes('live')) category = 'Concert / Live'
+  else if (plotLower.includes('biograph') || plotLower.includes('life of') || plotLower.includes('story of')) category = 'Biopic'
+  else if (genreLower.includes('music')) category = 'Music Film'
+  musicDvdCategories.set(category, (musicDvdCategories.get(category) || 0) + 1)
+}
+const musicDvdBreakdown = [...musicDvdCategories.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .map(([category, count]) => ({ category, count }))
+
+// ── Assemble Stats ──────────────────────────────────────────────────────
+
 const stats = {
   totalCds: cds.length,
   totalDvds: dvds.length,
@@ -334,6 +492,12 @@ const stats = {
     musicDvdCount: musicDvds.length,
     sharedArtists,
   },
+
+  deep: {
+    cdGenreCoOccurrence, dvdGenreCoOccurrence, labelGenreAffinity, artistTiers,
+    cdByDecade, cdReleaseYearCoverage, cdTagByDecade, dvdGenreByDecade, dvdRatingByDecade,
+    composerCrossovers, actorCrossovers, tagGenreBridge, musicDvdBreakdown,
+  },
 }
 
 // ── Write output ─────────────────────────────────────────────────────────
@@ -347,3 +511,4 @@ console.log(`  CD tags: ${[...cdTagMap.entries()].map(([k, v]) => `${k}(${v})`).
 console.log(`  DVD genres (top 5): ${topN(dvdGenreMap, 5).map(g => `${g.name}(${g.count})`).join(', ')}`)
 console.log(`  Shared artists: ${sharedArtists.length}`)
 console.log(`  Avg IMDb: ${avgImdbRating}`)
+console.log(`  Deep: ${cdGenreCoOccurrence.length} CD pairs, ${composerCrossovers.length} composer crossovers`)

@@ -1,6 +1,7 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
 import type { CdItem } from '@/types/cd'
 import { useCdArtwork } from '@/hooks/useArtwork'
+import { useItunesTracks, type ItunesTrack } from '@/hooks/useItunesTracks'
 import { getTagColor, getGenreColor } from '@/lib/colors'
 import { spotifySearchUrl, youtubeSearchUrl } from '@/lib/links'
 import Badge from '@/components/shared/Badge'
@@ -17,8 +18,54 @@ export default function CdDetailPage() {
   return <CdDetail cd={cd} />
 }
 
+function formatTrackDuration(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`
+}
+
+function Tracklist({ tracks }: { tracks: ItunesTrack[] }) {
+  const maxDisc = Math.max(...tracks.map(t => t.discNumber))
+  const multiDisc = maxDisc > 1
+
+  const byDisc = new Map<number, ItunesTrack[]>()
+  for (const t of tracks) {
+    const list = byDisc.get(t.discNumber) ?? []
+    list.push(t)
+    byDisc.set(t.discNumber, list)
+  }
+
+  return (
+    <div className="space-y-3">
+      <h2 className="text-sm text-muted-dark uppercase tracking-wider font-medium">Tracklist</h2>
+      {Array.from(byDisc.entries()).map(([disc, discTracks]) => (
+        <div key={disc}>
+          {multiDisc && (
+            <p className="text-xs text-muted font-medium mb-2">Disc {disc}</p>
+          )}
+          <ol className="space-y-0.5">
+            {discTracks.map(t => (
+              <li key={`${t.discNumber}-${t.trackNumber}`} className="flex items-baseline gap-3 py-1 text-sm border-b border-surface-light/50 last:border-0">
+                <span className="text-muted-dark font-mono text-xs w-5 text-right shrink-0">
+                  {t.trackNumber}
+                </span>
+                <span className="text-foreground truncate flex-1">{t.name}</span>
+                <span className="text-muted-dark font-mono text-xs shrink-0">
+                  {formatTrackDuration(t.durationMs)}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function CdDetail({ cd }: { cd: CdItem }) {
   const artUrl = useCdArtwork(cd)
+  const { tracks, loading: tracksLoading } = useItunesTracks(cd.artist, cd.title)
 
   return (
     <div className="px-4 py-8 pb-24 sm:pb-8">
@@ -82,6 +129,16 @@ function CdDetail({ cd }: { cd: CdItem }) {
               {cd.composer && <MetaItem label="Composer" value={cd.composer} />}
               {cd.conductor && <MetaItem label="Conductor" value={cd.conductor} />}
             </dl>
+
+            {/* Tracklist */}
+            {tracksLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted py-2">
+                <div className="h-4 w-4 animate-spin rounded-full border border-amber/40 border-t-amber" />
+                Loading tracklist...
+              </div>
+            ) : tracks.length > 0 ? (
+              <Tracklist tracks={tracks} />
+            ) : null}
 
             {/* External links */}
             <div className="flex items-center gap-3 pt-2">
