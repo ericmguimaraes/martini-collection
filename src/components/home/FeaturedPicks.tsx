@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { CdItem } from '@/types/cd'
 import type { DvdItem } from '@/types/dvd'
@@ -11,13 +11,14 @@ interface FeaturedPicksProps {
   dvds: DvdItem[]
 }
 
-function CdPickCard({ cd }: { cd: CdItem }) {
+function CdPickCard({ cd, index }: { cd: CdItem; index: number }) {
   const artUrl = useItunesArt(cd.artist, cd.title)
 
   return (
     <Link
       to={`/cd/${cd.id}`}
-      className="group flex flex-col rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5"
+      className="group flex flex-col rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5 animate-fade-in-up"
+      style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="aspect-square bg-surface-hover flex items-center justify-center relative overflow-hidden">
         {artUrl ? (
@@ -57,11 +58,12 @@ function CdPickCard({ cd }: { cd: CdItem }) {
   )
 }
 
-function DvdPickCard({ dvd }: { dvd: DvdItem }) {
+function DvdPickCard({ dvd, index }: { dvd: DvdItem; index: number }) {
   return (
     <Link
       to={`/dvd/${dvd.id}`}
-      className="group flex flex-col rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5"
+      className="group flex flex-col rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5 animate-fade-in-up"
+      style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="aspect-square bg-surface-hover flex flex-col items-center justify-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-copper/10 to-amber/5" />
@@ -92,24 +94,44 @@ function DvdPickCard({ dvd }: { dvd: DvdItem }) {
   )
 }
 
+function ShuffleIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="16 3 21 3 21 8" />
+      <line x1="4" y1="20" x2="21" y2="3" />
+      <polyline points="21 16 21 21 16 21" />
+      <line x1="15" y1="15" x2="21" y2="21" />
+      <line x1="4" y1="4" x2="9" y2="9" />
+    </svg>
+  )
+}
+
 export default function FeaturedPicks({ cds, dvds }: FeaturedPicksProps) {
-  const featuredCds = useMemo(() => pickFeaturedCds(cds, 3), [cds])
-  const featuredDvds = useMemo(() => pickFeaturedDvds(dvds, 3), [dvds])
+  const [seed, setSeed] = useState(0)
+  const featuredCds = useMemo(() => pickFeaturedCds(cds, 4), [cds, seed])
+  const featuredDvds = useMemo(() => pickFeaturedDvds(dvds, 4), [dvds, seed])
 
   return (
     <section className="px-4">
       <div className="mx-auto max-w-4xl space-y-4">
-        <div className="flex items-baseline gap-3">
+        <div className="flex items-center gap-3">
           <h2 className="font-display text-2xl text-foreground">From the Collection</h2>
-          <span className="text-xs text-muted-dark font-mono">refreshes each visit</span>
+          <button
+            onClick={() => setSeed(s => s + 1)}
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-muted border border-surface-light bg-surface hover:border-amber/30 hover:text-amber transition-all"
+            title="Shuffle picks"
+          >
+            <ShuffleIcon />
+            <span className="hidden sm:inline">Shuffle</span>
+          </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {featuredCds.map(cd => (
-            <CdPickCard key={cd.id} cd={cd} />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3" key={seed}>
+          {featuredCds.map((cd, i) => (
+            <CdPickCard key={cd.id} cd={cd} index={i} />
           ))}
-          {featuredDvds.map(dvd => (
-            <DvdPickCard key={dvd.id} dvd={dvd} />
+          {featuredDvds.map((dvd, i) => (
+            <DvdPickCard key={dvd.id} dvd={dvd} index={i + featuredCds.length} />
           ))}
         </div>
       </div>
