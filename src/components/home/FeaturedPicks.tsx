@@ -4,6 +4,7 @@ import type { CdItem } from '@/types/cd'
 import type { DvdItem } from '@/types/dvd'
 import { pickFeaturedCds, pickFeaturedDvds } from '@/lib/featured'
 import { getTagColor, getGenreColor } from '@/lib/colors'
+import { useItunesArt } from '@/hooks/useItunesArt'
 
 interface FeaturedPicksProps {
   cds: CdItem[]
@@ -11,17 +12,30 @@ interface FeaturedPicksProps {
 }
 
 function CdPickCard({ cd }: { cd: CdItem }) {
+  const artUrl = useItunesArt(cd.artist, cd.title)
+
   return (
     <Link
       to={`/cd/${cd.id}`}
       className="group flex flex-col rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5"
     >
-      <div className="aspect-square bg-surface-hover flex items-center justify-center p-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber/10 to-copper/10" />
-        <div className="relative text-center space-y-1">
-          <p className="font-display text-lg text-foreground leading-tight line-clamp-2">{cd.title}</p>
-          <p className="text-xs text-muted">{cd.artist}</p>
-        </div>
+      <div className="aspect-square bg-surface-hover flex items-center justify-center relative overflow-hidden">
+        {artUrl ? (
+          <img
+            src={artUrl}
+            alt={`${cd.artist} — ${cd.title}`}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          />
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-amber/10 to-copper/10" />
+            <div className="relative text-center space-y-1 p-4">
+              <p className="font-display text-lg text-foreground leading-tight line-clamp-2">{cd.title}</p>
+              <p className="text-xs text-muted">{cd.artist}</p>
+            </div>
+          </>
+        )}
       </div>
       <div className="p-3 space-y-1.5">
         <p className="text-sm text-foreground font-medium truncate group-hover:text-amber transition-colors">

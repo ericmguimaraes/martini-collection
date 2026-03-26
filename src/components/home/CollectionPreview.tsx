@@ -4,6 +4,7 @@ import type { CdItem } from '@/types/cd'
 import type { DvdItem } from '@/types/dvd'
 import { pickLatestAdditions } from '@/lib/featured'
 import { getTagColor, getGenreColor } from '@/lib/colors'
+import { useItunesArt } from '@/hooks/useItunesArt'
 
 interface CollectionPreviewProps {
   cds: CdItem[]
@@ -14,32 +15,45 @@ function isCd(item: CdItem | DvdItem): item is CdItem {
   return 'artist' in item
 }
 
-function PreviewCard({ item }: { item: CdItem | DvdItem }) {
-  if (isCd(item)) {
-    return (
-      <Link
-        to={`/cd/${item.id}`}
-        className="group flex-none w-36 sm:w-44 rounded-lg border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30"
-      >
-        <div className="aspect-square bg-surface-hover flex items-center justify-center p-3 relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber/5 to-transparent" />
-          <div className="relative text-center">
-            <p className="font-display text-sm text-foreground leading-tight line-clamp-2">{item.title}</p>
-            <p className="text-[10px] text-muted mt-1">{item.artist}</p>
-          </div>
-        </div>
-        <div className="p-2 space-y-1">
-          <p className="text-xs text-foreground truncate group-hover:text-amber transition-colors">{item.artist}</p>
-          {item.tag && (
-            <span className={`inline-block rounded-full px-1.5 py-0.5 text-[9px] ${getTagColor(item.tag)}`}>
-              {item.tag}
-            </span>
-          )}
-        </div>
-      </Link>
-    )
-  }
+function CdPreviewCard({ item }: { item: CdItem }) {
+  const artUrl = useItunesArt(item.artist, item.title)
 
+  return (
+    <Link
+      to={`/cd/${item.id}`}
+      className="group flex-none w-36 sm:w-44 rounded-lg border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30"
+    >
+      <div className="aspect-square bg-surface-hover flex items-center justify-center relative overflow-hidden">
+        {artUrl ? (
+          <img
+            src={artUrl}
+            alt={`${item.artist} — ${item.title}`}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          />
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-amber/5 to-transparent" />
+            <div className="relative text-center p-3">
+              <p className="font-display text-sm text-foreground leading-tight line-clamp-2">{item.title}</p>
+              <p className="text-[10px] text-muted mt-1">{item.artist}</p>
+            </div>
+          </>
+        )}
+      </div>
+      <div className="p-2 space-y-1">
+        <p className="text-xs text-foreground truncate group-hover:text-amber transition-colors">{item.artist}</p>
+        {item.tag && (
+          <span className={`inline-block rounded-full px-1.5 py-0.5 text-[9px] ${getTagColor(item.tag)}`}>
+            {item.tag}
+          </span>
+        )}
+      </div>
+    </Link>
+  )
+}
+
+function DvdPreviewCard({ item }: { item: DvdItem }) {
   return (
     <Link
       to={`/dvd/${item.id}`}
@@ -67,6 +81,11 @@ function PreviewCard({ item }: { item: CdItem | DvdItem }) {
       </div>
     </Link>
   )
+}
+
+function PreviewCard({ item }: { item: CdItem | DvdItem }) {
+  if (isCd(item)) return <CdPreviewCard item={item} />
+  return <DvdPreviewCard item={item} />
 }
 
 export default function CollectionPreview({ cds, dvds }: CollectionPreviewProps) {
