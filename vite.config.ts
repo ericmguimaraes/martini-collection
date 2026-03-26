@@ -20,6 +20,8 @@ export default defineConfig({
             '@nivo/line',
             '@nivo/pie',
             '@nivo/treemap',
+            '@nivo/heatmap',
+            '@nivo/radar',
             '@nivo/core',
           ],
         },
