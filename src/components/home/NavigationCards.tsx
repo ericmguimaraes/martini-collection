@@ -68,7 +68,7 @@ export default function NavigationCards({ totalCds, totalDvds }: NavigationCards
             <Link
               key={card.to}
               to={card.to}
-              className="group relative flex min-w-[140px] flex-1 flex-col items-center gap-3 rounded-xl border border-surface-light bg-surface p-5 transition-all hover:border-amber/30 hover:bg-surface-hover hover:shadow-lg hover:shadow-amber/5"
+              className="group relative flex min-w-[100px] flex-1 flex-col items-center gap-3 rounded-xl border border-surface-light bg-surface p-4 sm:p-5 transition-all hover:border-amber/30 hover:bg-surface-hover hover:shadow-lg hover:shadow-amber/5"
             >
               <div className="text-muted group-hover:text-amber transition-colors">
                 {card.icon}
