@@ -7,6 +7,7 @@ const InsightsPage = lazy(() => import('@/pages/InsightsPage'))
 const BrowsePage = lazy(() => import('@/pages/BrowsePage'))
 const CdDetailPage = lazy(() => import('@/pages/CdDetailPage'))
 const DvdDetailPage = lazy(() => import('@/pages/DvdDetailPage'))
+const SearchPage = lazy(() => import('@/pages/SearchPage'))
 const VinylPage = lazy(() => import('@/pages/VinylPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/insights" element={<InsightsPage />} />
             <Route path="/browse/:type" element={<BrowsePage />} />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="/cd/:id" element={<CdDetailPage />} />
             <Route path="/dvd/:id" element={<DvdDetailPage />} />
             <Route path="/vinyl" element={<VinylPage />} />
