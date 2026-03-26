@@ -9,6 +9,7 @@ import CoverArtMarquee from '@/components/home/CoverArtMarquee'
 import SpotlightStats from '@/components/home/SpotlightStats'
 import TopArtistsGallery from '@/components/home/TopArtistsGallery'
 import MusicMeetsCinema from '@/components/home/MusicMeetsCinema'
+import GenreBreakdown from '@/components/home/GenreBreakdown'
 import FeaturedPicks from '@/components/home/FeaturedPicks'
 
 const s = stats as CollectionStats
@@ -32,6 +33,8 @@ export default function HomePage() {
       <CoverArtMarquee cds={cdData} />
       <SectionDivider />
       <SpotlightStats stats={s} />
+      <SectionDivider />
+      <GenreBreakdown stats={s} />
       <SectionDivider />
       <TopArtistsGallery stats={s} cds={cdData} />
       <SectionDivider />
