@@ -14,9 +14,8 @@ function CdPickCard({ cd }: { cd: CdItem }) {
   return (
     <Link
       to={`/cd/${cd.id}`}
-      className="group flex flex-col min-w-[200px] rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5"
+      className="group flex flex-col rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5"
     >
-      {/* Styled placeholder — will be replaced with iTunes art in Phase 5 */}
       <div className="aspect-square bg-surface-hover flex items-center justify-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-amber/10 to-copper/10" />
         <div className="relative text-center space-y-1">
@@ -48,9 +47,8 @@ function DvdPickCard({ dvd }: { dvd: DvdItem }) {
   return (
     <Link
       to={`/dvd/${dvd.id}`}
-      className="group flex flex-col min-w-[200px] rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5"
+      className="group flex flex-col rounded-xl border border-surface-light bg-surface overflow-hidden transition-all hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5"
     >
-      {/* Styled text card for DVDs */}
       <div className="aspect-square bg-surface-hover flex flex-col items-center justify-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-copper/10 to-amber/5" />
         <div className="relative text-center space-y-2">
