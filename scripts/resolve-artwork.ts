@@ -11,6 +11,11 @@
  *
  * Environment variables (from .env.local or CI secrets):
  *   TMDB_API_KEY — required for DVD poster resolution
+ *
+ * CLI flags:
+ *   --delay <ms>  Override rate-limit delay for iTunes/TMDB (default: 200ms/50ms).
+ *                  MusicBrainz delay is clamped to ≥1200ms regardless.
+ *                  Previously missed items (url: null in cache) are always retried.
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'fs'
@@ -41,6 +46,26 @@ function loadEnvLocal() {
 
 loadEnvLocal()
 
+// ── CLI args ─────────────────────────────────────────────────────────────
+
+function parseCliArgs() {
+  const args = process.argv.slice(2)
+  let delay: number | undefined
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--delay' && args[i + 1]) {
+      delay = parseInt(args[i + 1], 10)
+      if (isNaN(delay) || delay < 0) {
+        console.error('Error: --delay must be a non-negative integer (ms)')
+        process.exit(1)
+      }
+      i++
+    }
+  }
+  return { delay }
+}
+
+const cliArgs = parseCliArgs()
+
 // ── Config ───────────────────────────────────────────────────────────────
 
 const ROOT = join(import.meta.dirname, '..')
@@ -52,10 +77,10 @@ const CACHE_PATH = join(ROOT, 'artwork-cache.json')
 const TMDB_API_KEY = process.env.TMDB_API_KEY || ''
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500'
 
-// Rate limit delays (ms)
-const ITUNES_DELAY = 200
-const MUSICBRAINZ_DELAY = 1200 // >1s per their policy
-const TMDB_DELAY = 50
+// Rate limit delays (ms) — override iTunes/TMDB with --delay flag
+const ITUNES_DELAY = cliArgs.delay ?? 200
+const MUSICBRAINZ_DELAY = Math.max(cliArgs.delay ?? 1200, 1200) // never below 1200 per their policy
+const TMDB_DELAY = cliArgs.delay ?? 50
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -191,6 +216,7 @@ async function main() {
   const cachedCount = Object.keys(cache).length
 
   console.log(`  Loaded ${cds.length} CDs, ${dvds.length} DVDs, ${cachedCount} cached entries`)
+  console.log(`  Delays: iTunes=${ITUNES_DELAY}ms, MusicBrainz=${MUSICBRAINZ_DELAY}ms, TMDB=${TMDB_DELAY}ms`)
 
   // ── Resolve CD artwork ──────────────────────────────────────────────
 
@@ -205,14 +231,12 @@ async function main() {
     const cd = cds[i]
     const prefix = `  [${i + 1}/${cds.length}]`
 
-    // Check cache
-    if (cache[cd.id]) {
+    // Check cache — skip only if already resolved with artwork
+    if (cache[cd.id]?.url) {
       const entry = cache[cd.id]
-      if (entry.url) {
-        cd.artworkUrl = entry.url
-        cd.artworkSource = entry.source
-        cdResolved++
-      }
+      cd.artworkUrl = entry.url!
+      cd.artworkSource = entry.source
+      cdResolved++
       cdCached++
       continue
     }
@@ -280,14 +304,12 @@ async function main() {
       const dvd = dvds[i]
       const prefix = `  [${i + 1}/${dvds.length}]`
 
-      // Check cache
-      if (cache[dvd.id]) {
+      // Check cache — skip only if already resolved with poster
+      if (cache[dvd.id]?.url) {
         const entry = cache[dvd.id]
-        if (entry.url) {
-          dvd.posterUrl = entry.url
-          dvd.posterSource = entry.source
-          dvdResolved++
-        }
+        dvd.posterUrl = entry.url!
+        dvd.posterSource = entry.source
+        dvdResolved++
         dvdCached++
         continue
       }
