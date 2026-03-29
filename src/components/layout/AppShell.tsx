@@ -16,6 +16,14 @@ export default function AppShell() {
         <p className="font-mono text-xs text-muted-dark">
           {t('nav.siteTitle')} — {t('footer.tagline')}
         </p>
+        <a
+          href="https://github.com/ericmguimaraes/martini-collection"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block mt-2 font-mono text-xs text-muted-dark hover:text-accent transition-colors"
+        >
+          GitHub
+        </a>
       </footer>
       <BottomNav />
     </div>
