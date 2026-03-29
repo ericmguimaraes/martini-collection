@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run prepare-data && npm run resolve-artwork && tsc -b && vite build",
+    "build": "npm run prepare-data && tsc -b && vite build",
     "preview": "vite preview",
     "prepare-data": "tsx scripts/prepare-data.ts",
     "resolve-artwork": "tsx scripts/resolve-artwork.ts"
