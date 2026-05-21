@@ -37,10 +37,10 @@ npm install            # install dependencies
 npm run prepare-data   # generate JSON from CSV data
 npm run resolve-artwork # resolve cover art & poster URLs (see below)
 npm run dev            # start dev server
-npm run build          # production build (runs prepare-data + resolve-artwork automatically)
+npm run build          # production build (runs prepare-data + type-check + bundle)
 ```
 
-CSV data is processed at build time by `scripts/prepare-data.ts` into JSON files (`src/data/`). The React app imports these as static data with code-split chunks.
+CSV data is processed at build time by `scripts/prepare-data.ts` into JSON files (`src/data/`). The React app imports these as static data with code-split chunks. `prepare-data` also merges the committed `artwork-cache.json` so each item gets its cover URL — the build never hits external APIs.
 
 ### Cover Art & Poster Setup
 
@@ -58,7 +58,23 @@ Get a free TMDB API key at [themoviedb.org/settings/api](https://www.themoviedb.
 
 **Without a TMDB key**, the build still works — DVD posters are skipped and DVDs show styled gradient placeholders instead. CD artwork is unaffected.
 
-The `artwork-cache.json` file is committed to git so that subsequent builds (local and CI) skip already-resolved items. The first run takes ~20 minutes for CDs; after that it's near-instant.
+The `artwork-cache.json` file is committed to git and is the source of truth for what the site renders. `prepare-data` reads it on every build, so once an item is in the cache the URL never needs to be re-fetched. The first run takes ~20 minutes for CDs (MusicBrainz rate-limit); after that it's near-instant.
+
+### Updating the artwork cache
+
+`artwork-cache.json` is keyed by `item.id` (e.g. `cd-0-abbey-lincoln-...`). Each entry is `{ url, source, resolvedAt }`. `url: null` means the item was tried and nothing was found.
+
+> ⚠️ IDs are derived from the row's index in the CSV (`cd-${i}-...`, `dvd-${i}-...`). Inserting new rows in the middle of a CSV shifts the IDs and silently invalidates the cache. **Append new rows at the end.**
+
+Common updates:
+
+- **Added new items to a CSV** — run `npm run resolve-artwork`. Cached items are skipped; only new IDs hit external APIs. Any previous `url: null` is automatically retried.
+- **Fix one specific item with wrong/broken artwork** — open `artwork-cache.json`, delete that entry (or set its `url` to `null`), then run `npm run resolve-artwork` again.
+- **Force a full re-resolution** — delete `artwork-cache.json` entirely and re-run. Slow (~20 min for CDs).
+- **DVD posters missing** — confirm `TMDB_API_KEY` is set in `.env.local` and re-run.
+- **Speed up CD resolution** — `npm run resolve-artwork -- --delay 50` lowers the iTunes/TMDB delay. MusicBrainz is always clamped to ≥1200ms per their published policy.
+
+After updating, run `npm run prepare-data` (or `npm run build`) so the generated `cds.json`/`dvds.json` pick up the new URLs, then commit `artwork-cache.json`.
 
 ### Search
 
