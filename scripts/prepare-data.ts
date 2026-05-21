@@ -3,7 +3,7 @@
  * Reads CD and DVD CSVs, extracts fields, builds search indices, computes stats.
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import { parse } from 'csv-parse/sync'
 
@@ -11,6 +11,16 @@ const ROOT = join(import.meta.dirname, '..')
 const DATA_DIR = join(ROOT, 'src', 'data')
 const CD_CSV = join(ROOT, 'resources', '20260325_Acervo CDs Martini.csv')
 const DVD_CSV = join(ROOT, 'resources', '20260325_Acervo DVDs Martini.csv')
+const ARTWORK_CACHE = join(ROOT, 'artwork-cache.json')
+
+interface ArtworkCacheEntry {
+  url: string | null
+  source: string
+  resolvedAt: string
+}
+const artworkCache: Record<string, ArtworkCacheEntry> = existsSync(ARTWORK_CACHE)
+  ? JSON.parse(readFileSync(ARTWORK_CACHE, 'utf-8'))
+  : {}
 
 mkdirSync(DATA_DIR, { recursive: true })
 
@@ -90,6 +100,8 @@ interface CdRow {
   releaseYear: number | null
   addedDate: string
   catNo: string
+  artworkUrl?: string
+  artworkSource?: string
   _search: string
 }
 
@@ -106,8 +118,11 @@ const cds: CdRow[] = cdRows.map((row, i) => {
 
   const searchParts = [artist, title, genre, tag, label, composer, conductor].filter(Boolean)
 
+  const id = `cd-${i}-${slugify(artist + ' ' + title).slice(0, 40)}`
+  const art = artworkCache[id]
+
   return {
-    id: `cd-${i}-${slugify(artist + ' ' + title).slice(0, 40)}`,
+    id,
     artist,
     title,
     genre,
@@ -122,6 +137,7 @@ const cds: CdRow[] = cdRows.map((row, i) => {
     releaseYear: parseIntOrNull(row['Release Year']) || parseIntOrNull(row['Original Release Year']),
     addedDate: row['Added Date'] || '',
     catNo: row['Cat No'] || '',
+    ...(art?.url ? { artworkUrl: art.url, artworkSource: art.source } : {}),
     _search: searchParts.join(' ').toLowerCase(),
   }
 })
@@ -149,6 +165,8 @@ interface DvdRow {
   studios: string
   tag: string
   addedDate: string
+  posterUrl?: string
+  posterSource?: string
   _search: string
 }
 
@@ -174,8 +192,11 @@ const dvds: DvdRow[] = dvdRows.map((row, i) => {
     studios,
   ].filter(Boolean)
 
+  const id = `dvd-${i}-${slugify(title).slice(0, 40)}`
+  const art = artworkCache[id]
+
   return {
-    id: `dvd-${i}-${slugify(title).slice(0, 40)}`,
+    id,
     title,
     originalTitle: row['Original Title'] || '',
     sortTitle: row['Sort Title'] || title,
@@ -195,6 +216,7 @@ const dvds: DvdRow[] = dvdRows.map((row, i) => {
     studios,
     tag,
     addedDate: row['Added Date'] || '',
+    ...(art?.url ? { posterUrl: art.url, posterSource: art.source } : {}),
     _search: searchParts.join(' ').toLowerCase(),
   }
 })
